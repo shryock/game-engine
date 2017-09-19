@@ -9,13 +9,15 @@
 var assets = new Assets();
 var game;
 var gameObjects = [];
-var newColor = undefined;
+var lastKeyDown = null;
+var gameLoopInterval;
 
 canvas = document.getElementById("gamespace");
 context = canvas.getContext('2d');
 
 canvas.addEventListener("mousedown", handleMouseDown);
 canvas.addEventListener("mouseup", handleMouseUp);
+window.addEventListener("keydown", handleKeyDown);
 
 function GameObject(name, sprite) {
   this.name = name;
@@ -32,22 +34,21 @@ function GameObject(name, sprite) {
 
   this.draw = function() {
     if (game.canDrawObject(this)) {
-      context.drawImage(this.sprite.image, this.sprite.X, this.sprite.Y,
-                        this.sprite.image.width, this.sprite.image.height);
+    	this.sprite.draw(context);
     }
   };
-}
-
-function setNewColor(color) {
-  newColor = color;
 }
 
 function getGameObject(name) {
   return assets.getAssetByFunction("GameObject", (function(element) {return element.name === name;}));
 }
 
-function addSprite(x, y, width, height, src) {
-  assets.addSprite(x, y, width, height, src);
+function addSprite(x, y, width, height,  src) {
+  return assets.addSprite(x, y, width, height, src);
+}
+
+function addSpriteFromSheet(x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY) {
+  return assets.addSpriteFromSheet(x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY);
 }
 
 function addGameObject(name, sprite) {
@@ -57,9 +58,13 @@ function addGameObject(name, sprite) {
 }
 
 function addGameObjectWithSprite(name, x, y, width, height, src) {
-  assets.addSprite(x, y, width, height, src);
-  var gameObjectSprite = assets.getAsset("Sprite", assets.getList("Sprite").length - 1);
+  var gameObjectSprite = addSprite(x, y, width, height, src);
   addGameObject(name, gameObjectSprite);
+}
+
+function addGameObjectWithSpriteFromSheet(name, x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY) {
+	  var gameObjectSprite = addSpriteFromSheet(x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY);
+	  addGameObject(name, gameObjectSprite);
 }
 
 function getGameObject(name) {
@@ -75,9 +80,10 @@ function getGameObjects() {
 }
 
 function handleMouseDown(e) {
+  var element = document.getElementById('gallery-button-bar');
   // Set selected image
   for (var iter = 0; iter < gameObjects.length; iter++) {
-    if (checkSprite(gameObjects[iter].sprite, e.clientX, e.clientY)) {
+    if (checkSprite(gameObjects[iter].sprite, e.clientX, e.clientY - element.clientHeight)) {
       game.setActiveObjectIndex(iter);
     }
   }
@@ -89,6 +95,7 @@ function handleMouseDown(e) {
 function handleMouseUp(e) {
   // Remove the onmousemove listener once the mouse button is released
   canvas.onmousemove = null;
+  game.setActiveObjectIndex(-1);
 }
 
 function handleMouseMove(e) {
@@ -97,10 +104,39 @@ function handleMouseMove(e) {
   // the canvas offset plus half of the width/height (to center on the mouse)
   if (activeObjectIndex >= 0) {
     gameObjects[activeObjectIndex].sprite.X = e.pageX -
-      (canvas.offsetLeft + (gameObjects[activeObjectIndex].sprite.image.width / 2));
+      (canvas.offsetLeft + (gameObjects[activeObjectIndex].sprite.width / 2));
     gameObjects[activeObjectIndex].sprite.Y = e.pageY -
-      (canvas.offsetTop + (gameObjects[activeObjectIndex].sprite.image.height / 2));
+      (canvas.offsetTop + (gameObjects[activeObjectIndex].sprite.height / 2));
   }
+}
+
+function handleKeyDown(e) {
+  // Switch on the key code for the key being held down
+  switch (e.which) {
+    // Left arrow key
+    case 37:
+      lastKeyDown = "left";
+      break;
+    // Up arrow key
+    case 38:
+      lastKeyDown = "up";
+      break;
+    // Right arrow key
+    case 39:
+      lastKeyDown = "right";
+      break;
+    // Down arrow key
+    case 40:
+      lastKeyDown = "down";
+      break;
+    // Any behavior needed for the rest of the key set
+    // For snake, we may need to add some more
+    default:
+  }
+}
+
+function getLastKeyDown() {
+  return lastKeyDown;
 }
 
 // Basically, there is a collision if:
@@ -108,11 +144,20 @@ function handleMouseMove(e) {
 //     left of sprite1 > right of sprite2
 //     bottom of sprite1 < top of sprite2
 //     top of sprite1 > bottom of sprite2
-function checkCollision(sprite1, sprite2) {
-  return !((sprite1.X + sprite1.image.width) < sprite2.X    ||
-            sprite1.X > (sprite2 + sprite2.image.width)     ||
-           (sprite1.Y + sprite1.image.height) < sprite2.Y   ||
-            sprite1.Y > (sprite2.Y + sprite2.image.height));
+function checkCollision(sprite1, sprite2, array) {
+  if (array != undefined) {
+    for(var i = 0; i < array.length; i++) {
+      if(array[i].x === sprite1 && array[i].y === sprite2) // sprite1 is x, sprite2 is y
+      return true;
+    } 
+    return false;
+  } else {
+    return !((sprite1.X + sprite1.width) < sprite2.X    ||
+    sprite1.X > (sprite2.X + sprite2.width)     ||
+   (sprite1.Y + sprite1.height) < sprite2.Y   ||
+    sprite1.Y > (sprite2.Y + sprite2.height));
+  }
+  
 }
 
 // Returns all GameObjects at a point in the canvas
@@ -130,9 +175,9 @@ function getObjectsAtPoint(x, y) {
 // Returns true if the sprite overlaps with the coordinates
 function checkSprite(sprite, x, y) {
   var minX = sprite.X;
-  var maxX = sprite.X + sprite.image.width;
+  var maxX = sprite.X + sprite.width;
   var minY = sprite.Y;
-  var maxY = sprite.Y + sprite.image.height;
+  var maxY = sprite.Y + sprite.height;
   var mx = x;
   var my = y;
   if (mx >= minX && mx <= maxX && my >= minY && my <= maxY) {
@@ -146,29 +191,27 @@ function update() {
 }
 
 function draw() {
-  canvas.width = canvas.width;
 
-  context.font = "30px Verdana";
+  game.draw();
 
-  if (newColor != undefined) {
-    context.fillText("Created Color: " + newColor, 100, 400);
-  }
-
-  context.beginPath();
-  context.lineWidth = "6";
-  context.strokeStyle = "black";
-  context.rect(0, 0, 950, window.innerHeight / 5);
-  context.stroke();
-
+  assets.updateSprites();
   for (var gameObject of gameObjects) {
     gameObject.draw();
   }
 }
 
-function startGame(newGame) {
+function clearGame() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  var lastKeyDown = null;
+  game = null;
+  gameObjects = [];
+  clearInterval(gameLoopInterval);
+}
+
+function startGame(newGame, gameLoopSpeed) {
   game = newGame;
   loadContent();
-  setInterval(game_loop, 30);
+  gameLoopInterval = setInterval(game_loop, gameLoopSpeed);
 }
 
 function loadContent() {

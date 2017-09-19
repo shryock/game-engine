@@ -12,6 +12,7 @@ var AlchemyGame = function() {
     this.recipes = [];
     this.defaultElement = "black";
     this.activeObjectIndex;
+    this.newColor = undefined;
 
     // Create a recipe object
     function Recipe(input1, input2, output) {
@@ -55,6 +56,7 @@ var AlchemyGame = function() {
         var elementWidth = 80;
         var elementHeight = 80;
         
+        
         for (var i = 0; i < images.length; i++) {
             addGameObjectWithSprite(colorNames[i], 20 + (elementWidth * i) + 10, 20, elementWidth, elementHeight, images[i]);
         }
@@ -81,13 +83,26 @@ var AlchemyGame = function() {
         }
     }
 
+    this.draw = function() {
+        canvas.width = canvas.width;
+        context.font = "30px Verdana";
+        if (this.newColor != undefined) {
+          context.fillText("Created Color: " + this.newColor, 100, 400);
+        }
+        context.beginPath();
+        context.lineWidth = "6";
+        context.strokeStyle = "black";
+        context.rect(0, 0, 950, window.innerHeight / 5);
+        context.stroke();
+    }
+
     this.update = function() {
         if (this.activeObjectIndex >= 0) {
             var firstElement = this.allElements[this.activeObjectIndex];
             var secondElement;
 
-            var objects = getObjectsAtPoint(firstElement.sprite.X + firstElement.sprite.image.width / 2,
-                                            firstElement.sprite.Y + firstElement.sprite.image.height / 2);
+            var objects = getObjectsAtPoint(firstElement.sprite.X + firstElement.sprite.width / 2,
+                                            firstElement.sprite.Y + firstElement.sprite.height / 2);
 
             // If there are multiple objects overlapping
             if (objects.length > 1) {
@@ -106,7 +121,7 @@ var AlchemyGame = function() {
                     if (output === null) {
                         output = getGameObject("black");
                     }
-                    setNewColor(output.name);
+                    this.newColor = output.name;
                     this.unlockedElements.push(output);
                     firstElement.resetPosition();
                     secondElement.resetPosition();
@@ -178,5 +193,3 @@ var AlchemyGame = function() {
       return spritesOutOfBox && areColliding;
     }
 }
-
-startGame(new AlchemyGame());

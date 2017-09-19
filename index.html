@@ -5,12 +5,28 @@
     <title>Alchemy</title>
 </head>
 
-<canvas id="gamespace" width="1200" height="600">
-  Canvas not supported. Try a better browser ;)
-</canvas>
+<script src="gallery.js"></script>
+
+<script>
+    var gallery = new Gallery();
+</script>
+
+<body>
+    <div id="gallery-button-bar" style="float: top;">
+        <button onclick="gallery.initGame('snake')">Snake</button>
+        <button onclick="gallery.initGame('alchemy')">Alchemy</button>
+        <br/><br/>
+    </div>
+    <div id="snakeInstructions"  style="display:none;"> Press a directional key to begin!</div>
+    <canvas id="gamespace" width="1200" height="600">
+        Canvas not supported. Try a better browser ;)
+    </canvas>
+</body>
 
 <script src="Assets.js"></script>
+<script src="storage.js"></script>
 <script src="engine.js"></script>
 <script src="alchemy.js"></script>
+<script src="snake.js"></script>
 
 </html>
