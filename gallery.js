@@ -15,12 +15,10 @@ var Gallery = function() {
             case "alchemy":
                 clearGame();
                 startGame(new AlchemyGame(), 30);
-                document.getElementById('snakeInstructions').style.display = "none";
                 break;
             case "snake":
                 clearGame();
                 startGame(new SnakeGame(), 60);
-                document.getElementById('snakeInstructions').style.display = "block";
                 break;
             default:
                 clearGame();

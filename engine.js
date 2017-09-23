@@ -186,12 +186,18 @@ function checkSprite(sprite, x, y) {
   return false;
 }
 
+function getContext() {
+  return context;
+}
+
 function update() {
   game.update();
 }
 
 function draw() {
+  canvas.width = canvas.width;
 
+  UIComponents.getInstance().draw();
   game.draw();
 
   assets.updateSprites();

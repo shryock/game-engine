@@ -7,13 +7,14 @@
  *     John-Michael Caskey (jmcaskey)
  */
 var SnakeGame = function() {
-    this.storage;
+    this.uiComponents;
     this.activeObjectIndex;
     this.direction;
     this.unlockedElements = [];
 
     this.score;
     this.highScore;
+    this.instructions;
     this.food;
     this.images;
     this.snakeArray;
@@ -27,11 +28,11 @@ var SnakeGame = function() {
     this.createGame = function() {
         this.score = 0;
 
-        this.storage = new Storage();
-        this.highScore = this.storage.getItem("snake-high-score");
-        if (this.highScore === null) {
-            this.highScore = 0;
-        }
+        this.uiComponents = UIComponents.getInstance();
+        this.uiComponents.addBox(0, 0, this.width, this.height, "black", undefined);
+        this.uiComponents.addScore(10, 35, this.score);
+        this.uiComponents.addHighScore(10, 65, "snake-high-score");
+        this.highScore = this.uiComponents.getHighScore();
 
         // this needs to be changed
         this.images = {};
@@ -116,33 +117,27 @@ var SnakeGame = function() {
 			this.createBadFood();
 			this.badFoodTimer = 0;
 		}
+
+        this.uiComponents.setScore(this.score);
     }
 
     this.draw = function() {
-    	// draws background and border
-        context.fillStyle = "white";
-        context.fillRect(0, 0, this.width, this.height);
-        context.strokeStyle = "black";
-        context.strokeRect(0, 0, this.width, this.height);
-
         // draws the snake
         for(var i = 0; i < this.snakeArray.length; i++) {
             var c = this.snakeArray[i];
             this.paintCell(c.x, c.y);
         }
-        
+
         // draws the food
         if (getLastKeyDown() !== null) {
         	this.unlockedElements.push(getGameObject('food'));
 			this.unlockedElements.push(getGameObject('poison'));
         }
-        
-        // draws the score
-        var score_text = "Score: " + this.score;
-        context.font = "30px Verdana";
-        context.fillText(score_text, 10, 35); // this should print the score
-        var high_score_text = "High Score: " + this.highScore;
-        context.fillText(high_score_text, 10, 65);
+
+        if (getLastKeyDown() == null) {
+            context.font = "30px Verdana";
+            context.fillText("Press a directional key to begin!", context.canvas.width/2 - 100, context.canvas.height/2);
+        }
     }
 
     // this is temporary; creates boxes to represent snake and food
@@ -216,9 +211,9 @@ var SnakeGame = function() {
     this.gameOver = function() {
     	if (this.score > this.highScore) {
             this.highScore = this.score;
-            this.storage.setItem("snake-high-score", this.highScore);
+            //this.storage.setItem("snake-high-score", this.highScore);
+            this.uiComponents.setHighScore(this.highScore);
         }
 	    this.createGame()
-
     }
 }
