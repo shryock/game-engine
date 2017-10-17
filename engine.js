@@ -1,10 +1,12 @@
 /**
- * Alchemy game for CSC481 assignment.
+ * Game engine for CSC481 assignment.
  * Group Members:
  *     Andrew Shryock      (ajshryoc)
  *     Chris Miller        (cjmille7)
  *     Colleen Britt       (cbritt)
  *     John-Michael Caskey (jmcaskey)
+ *
+ * Main engine module. This defines the global API for referenceing the engine.
  */
 var assets = new Assets();
 var game;
@@ -12,16 +14,17 @@ var gameObjects = [];
 var lastKeyDown = null;
 var gameLoopInterval;
 
-canvas = document.getElementById("gamespace");
-context = canvas.getContext('2d');
+var canvas;
+var context;
 
-canvas.addEventListener("mousedown", handleMouseDown);
-canvas.addEventListener("mouseup", handleMouseUp);
 window.addEventListener("keydown", handleKeyDown);
+window.addEventListener("keyup", handleKeyUp);
 
 function GameObject(name, sprite) {
   this.name = name;
   this.sprite = sprite;
+  this.draggable = false;
+  this.visible = false;
 
   this.resetPosition = function() {
     this.sprite.X = this.sprite.origX;
@@ -34,8 +37,24 @@ function GameObject(name, sprite) {
 
   this.draw = function() {
     if (game.canDrawObject(this)) {
-    	this.sprite.draw(context);
+    	this.sprite.draw(context, canvas);
     }
+  };
+
+  this.setDraggable = function(draggable) {
+    this.draggable = draggable;
+  };
+
+  this.isDraggable = function() {
+    return this.draggable;
+  };
+
+  this.setVisibility = function(visible) {
+    this.visible = visible;
+  };
+
+  this.isVisible = function() {
+    return this.visible;
   };
 }
 
@@ -55,35 +74,73 @@ function addGameObject(name, sprite) {
   var gameObject = new GameObject(name, sprite);
   assets.addAsset("GameObject", gameObject);
   gameObjects.push(gameObject);
+  return gameObject;
+}
+
+function addCreatedGameObject(gameObject) {
+  assets.addAsset("GameObject", gameObject);
+  gameObjects.push(gameObject);
 }
 
 function addGameObjectWithSprite(name, x, y, width, height, src) {
   var gameObjectSprite = addSprite(x, y, width, height, src);
-  addGameObject(name, gameObjectSprite);
+  return addGameObject(name, gameObjectSprite);
 }
 
 function addGameObjectWithSpriteFromSheet(name, x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY) {
 	  var gameObjectSprite = addSpriteFromSheet(x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY);
-	  addGameObject(name, gameObjectSprite);
+	  return addGameObject(name, gameObjectSprite);
 }
 
-function getGameObject(name) {
+function removeGameObject(name) {
+  for (var i = 0; i < gameObjects.length; i++) {
+    if (gameObjects[i].name === name) {
+      gameObjects.splice(i, 1);
+      assets.removeAsset("GameObject", i);
+    }
+  }
+}
+
+// Returns an array of all GameObjects with a specified name
+function getGameObjectsWithName(name) {
+  var commonlyNamedObjects = [];
+  for (var object of gameObjects) {
+    if (object.name === name) {
+      commonlyNamedObjects.push(object);
+    }
+  }
+  return commonlyNamedObjects;
+}
+
+// Returns an array of all GameObject with names that include a passed-in string
+function searchForObjectsByName(name) {
+  var objectsWithNameIncluded = [];
+  for (var object of gameObjects) {
+    if (object.name.includes(name)) {
+      objectsWithNameIncluded.push(object);
+    }
+  }
+  return objectsWithNameIncluded;
+}
+
+/*function getGameObject(name) {
   for (var i = 0; i < gameObjects.length; i++) {
     if (name === gameObjects[i].name) {
       return gameObjects[i];
     }
   }
-}
+}*/
 
 function getGameObjects() {
   return gameObjects;
 }
 
 function handleMouseDown(e) {
-  var element = document.getElementById('gallery-button-bar');
+  var rect = canvas.getBoundingClientRect();
   // Set selected image
   for (var iter = 0; iter < gameObjects.length; iter++) {
-    if (checkSprite(gameObjects[iter].sprite, e.clientX, e.clientY - element.clientHeight)) {
+    if (gameObjects[iter].isDraggable() &&
+        checkSprite(gameObjects[iter].sprite, e.clientX - rect.left, e.clientY - rect.top)) {
       game.setActiveObjectIndex(iter);
     }
   }
@@ -100,14 +157,17 @@ function handleMouseUp(e) {
 
 function handleMouseMove(e) {
   var activeObjectIndex = game.getActiveObjectIndex();
+  var rect = canvas.getBoundingClientRect();
   // Translate the image's x and y components to the page coordinate minus
   // the canvas offset plus half of the width/height (to center on the mouse)
   if (activeObjectIndex >= 0) {
-    gameObjects[activeObjectIndex].sprite.X = e.pageX -
-      (canvas.offsetLeft + (gameObjects[activeObjectIndex].sprite.width / 2));
-    gameObjects[activeObjectIndex].sprite.Y = e.pageY -
-      (canvas.offsetTop + (gameObjects[activeObjectIndex].sprite.height / 2));
+    gameObjects[activeObjectIndex].sprite.X = (e.clientX - rect.left) - (gameObjects[activeObjectIndex].sprite.width / 2);
+    gameObjects[activeObjectIndex].sprite.Y = (e.clientY - rect.top) - (gameObjects[activeObjectIndex].sprite.height / 2);
   }
+}
+
+function handleKeyUp(e) {
+	lastKeyDown = "";
 }
 
 function handleKeyDown(e) {
@@ -129,9 +189,14 @@ function handleKeyDown(e) {
     case 40:
       lastKeyDown = "down";
       break;
+    case 32:
+      lastKeyDown = "space";
+      break;
     // Any behavior needed for the rest of the key set
     // For snake, we may need to add some more
     default:
+      lastKeyDown = "";
+      break;
   }
 }
 
@@ -152,12 +217,23 @@ function checkCollision(sprite1, sprite2, array) {
     } 
     return false;
   } else {
-    return !((sprite1.X + sprite1.width) < sprite2.X    ||
-    sprite1.X > (sprite2.X + sprite2.width)     ||
-   (sprite1.Y + sprite1.height) < sprite2.Y   ||
-    sprite1.Y > (sprite2.Y + sprite2.height));
+    return !((sprite1.X + sprite1.width) < sprite2.X  ||
+      sprite1.X > (sprite2.X + sprite2.width)         ||
+     (sprite1.Y + sprite1.height) < sprite2.Y         ||
+      sprite1.Y > (sprite2.Y + sprite2.height));
   }
   
+}
+
+// Returns true if the object is out of bounds
+function checkBounds(gameObject) {
+  var objectWidth = gameObject.sprite.width;
+  var objectHeight = gameObject.sprite.height;
+
+  return gameObject.sprite.X < (0 - objectWidth)                ||
+         gameObject.sprite.X > (canvas.width + objectWidth)     ||
+         gameObject.sprite.Y < (0 - objectHeight)               ||
+         gameObject.sprite.Y > (canvas.height + objectHeight);
 }
 
 // Returns all GameObjects at a point in the canvas
@@ -197,25 +273,42 @@ function update() {
 function draw() {
   canvas.width = canvas.width;
 
-  UIComponents.getInstance().draw();
   game.draw();
 
   assets.updateSprites();
   for (var gameObject of gameObjects) {
     gameObject.draw();
   }
+
+  UIComponents.getInstance().draw();
 }
+
+function move(object, direction, speed, spin) {
+    var angularDirection = direction;
+    var velocity  = speed;
+    var velocityX =  Math.sin(angularDirection * (Math.PI / 180)) * velocity;
+    var velocityY = -Math.cos(angularDirection * (Math.PI / 180)) * velocity;
+
+    object.sprite.X += velocityX;
+    object.sprite.Y += velocityY;
+};
 
 function clearGame() {
   context.clearRect(0, 0, canvas.width, canvas.height);
   var lastKeyDown = null;
   game = null;
   gameObjects = [];
+  UIComponents.getInstance().clearUIComponents();
   clearInterval(gameLoopInterval);
 }
 
-function startGame(newGame, gameLoopSpeed) {
+function startGame(newGame, gameLoopSpeed, gameCanvas) {
   game = newGame;
+  canvas = gameCanvas;
+  context = canvas.getContext('2d');
+  canvas.addEventListener("mousedown", handleMouseDown);
+  canvas.addEventListener("mouseup", handleMouseUp);
+
   loadContent();
   gameLoopInterval = setInterval(game_loop, gameLoopSpeed);
 }

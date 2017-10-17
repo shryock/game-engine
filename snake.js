@@ -1,133 +1,269 @@
 /**
- * Alchemy game for CSC481 assignment.
+ * Game engine for CSC481 assignment.
  * Group Members:
  *     Andrew Shryock      (ajshryoc)
  *     Chris Miller        (cjmille7)
  *     Colleen Britt       (cbritt)
  *     John-Michael Caskey (jmcaskey)
+ *
+ * Snake game logic.
  */
 var SnakeGame = function() {
+    var CELL_WIDTH = 20;
+    var SCORE_STRING_ID = "snake-score";
+    var HIGHSCORE_STRING_ID = "snake-highscore";
+    var SNAKE_SPRITESHEET_SRC = 'sprites/snake/snake_spritesheet.png';
+
     this.uiComponents;
     this.activeObjectIndex;
-    this.direction;
     this.unlockedElements = [];
 
     this.score;
     this.highScore;
-    this.instructions;
-    this.food;
-    this.images;
-    this.snakeArray;
 
-    this.width = canvas.width;
-    this.height = canvas.height;
-    this.cellWidth = 20;
-    
-    this.badFoodTimer = 0;
+    function Snake() {
+        this.prototype = Object.create(GameObject.prototype);
+        GameObject.call(this);
+
+        var STARTING_SNAKE_LENGTH = 3;
+        var snakeLength = 0;
+
+        this.name = "snake";
+        this.sprite = null;
+        this.snakeArray = [];
+        this.direction = "right";
+
+        this.draw = function() {
+            for (var segment of this.snakeArray) {
+                segment.draw();
+            }
+        };
+
+        this.grow = function() {
+            var x;
+            var y;
+
+            if (this.snakeArray.length > 0) {
+                var tail = this.snakeArray.pop();
+                x = tail.sprite.X;
+                y = tail.sprite.Y;
+                this.snakeArray.push(tail);
+
+                switch (this.direction) {
+                    case "right":
+                        x -= (CELL_WIDTH);
+                        break;
+                    case "left":
+                        x += (CELL_WIDTH);
+                        break;
+                    case "up":
+                        y += (CELL_WIDTH);
+                        break;
+                    case "down":
+                        y -= (CELL_WIDTH);
+                        break;
+                }
+            } else {
+                x = canvas.width/2;
+                y = canvas.height/2;
+            }
+
+            this.snakeArray.push(new SnakeSegment(x, y));
+        };
+
+        this.shrink = function() {
+            if (this.snakeArray.length > 1) {
+                this.snakeArray.pop();
+            } else {
+                return -1;
+            }
+        };
+
+        this.move = function() {
+            var tail  = this.snakeArray[this.snakeArray.length - 1];
+            var head  = this.snakeArray[0];
+            var headX;
+            var headY;
+
+            if (head !== undefined) {
+                headX = head.sprite.X;
+                headY = head.sprite.Y;
+            } else {
+                headX = 0;
+                headY = 0;
+            }
+
+            switch (this.direction) {
+                case "right":
+                    tail.sprite.X  = (headX + CELL_WIDTH);
+                    tail.sprite.Y = headY;
+                    break;
+                case "left":
+                    tail.sprite.X  = (headX - CELL_WIDTH);
+                    tail.sprite.Y = headY;
+                    break;
+                case "up":
+                    tail.sprite.Y  = (headY - CELL_WIDTH);
+                    tail.sprite.X = headX;
+                    break;
+                case "down":
+                    tail.sprite.Y  = (headY + CELL_WIDTH);
+                    tail.sprite.X = headX;
+                    break;
+            }
+
+            this.snakeArray.pop();
+            this.snakeArray.unshift(tail);
+        };
+
+        this.checkCollisionWithSelf = function() {
+            for (var segment of this.snakeArray) {
+                if (this.getHead().name !== segment.name &&
+                    this.getHead().sprite.X == segment.sprite.X &&
+                    this.getHead().sprite.Y == segment.sprite.Y) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        this.getDirection = function() {
+            return this.direction;
+        };
+
+        this.setDirection = function(direction) {
+            this.direction = direction;
+        };
+
+        this.getHead = function() {
+            return this.snakeArray[0];
+        };
+
+        this.setVisibility(true);
+
+        for (var i = 0; i < STARTING_SNAKE_LENGTH; i++) {
+            this.grow();
+        }
+
+        function SnakeSegment(x, y) {
+            this.prototype = Object.create(GameObject.prototype);
+            GameObject.call(this);
+
+            this.name = "snake-segment-" + snakeLength;
+            this.sprite = addSpriteFromSheet(x, y, CELL_WIDTH, CELL_WIDTH, 1, SNAKE_SPRITESHEET_SRC, 40, 40, 200, 80, 0, 120);
+
+            snakeLength++;
+
+            this.setVisibility(true);
+        }
+    }
+
+    function Food() {
+        this.prototype = Object.create(GameObject.prototype);
+        GameObject.call(this);
+
+        this.name = "food";
+        this.sprite = addSpriteFromSheet(0, 0, CELL_WIDTH, CELL_WIDTH, 10, SNAKE_SPRITESHEET_SRC, 40, 40, 200, 80, 0, 40);
+
+        this.move = function() {
+            this.sprite.X = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+            this.sprite.Y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+        };
+
+        this.move();
+        this.setVisibility(true);
+    }
+
+    function Poison() {
+        this.prototype = Object.create(GameObject.prototype);
+        GameObject.call(this);
+
+        this.name = "poison";
+        this.sprite = addSpriteFromSheet(0, 0, CELL_WIDTH, CELL_WIDTH, 10, SNAKE_SPRITESHEET_SRC, 40, 40, 200, 80, 0, 0);
+        this.sprite.X = -20;
+        this.sprite.Y = -20;
+
+        this.move = function() {
+            clearInterval(window.snakePoisonInterval);
+            getGameObject("poison").sprite.X = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+            getGameObject("poison").sprite.Y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+            window.snakePoisonInterval = setTimeout(getGameObject("poison").move, 3000);
+        };
+
+        this.setVisibility(true);
+    }
 
     this.createGame = function() {
         this.score = 0;
 
         this.uiComponents = UIComponents.getInstance();
-        this.uiComponents.addBox(0, 0, this.width, this.height, "black", undefined);
-        this.uiComponents.addScore(10, 35, this.score);
-        this.uiComponents.addHighScore(10, 65, "snake-high-score");
-        this.highScore = this.uiComponents.getHighScore();
+        this.uiComponents.addBox(0, 0, canvas.width, canvas.height, "black", undefined);
+        this.uiComponents.addScore(10, 35, SCORE_STRING_ID, this.score, "black");
+        this.uiComponents.addHighScore(10, 65, HIGHSCORE_STRING_ID, "snake-high-score", "black");
+        this.highScore = this.uiComponents.getHighScore(HIGHSCORE_STRING_ID);
 
-        // this needs to be changed
-        this.images = {};
-        //images.push("https://i.imgur.com/RUJQrTx.png"); // temp
-        //addGameObjectWithSprite("snake", 20 + (this.cellWidth) + 10, 20, this.cellWidth, this.cellWidth, images[0]);
-        //this.unlockedElements.push(getGameObject("snake"));
-        this.images.food = addSpriteFromSheet( 0, 0, this.cellWidth, this.cellWidth, 10, 'sprites/snake_spritesheet.png', 40, 40, 200, 80, 0, 40);
-        addGameObject("food", this.images.food);
-        this.images.poison = addSpriteFromSheet( 0, 0, this.cellWidth, this.cellWidth, 10, 'sprites/snake_spritesheet.png', 40, 40, 200, 80, 0, 0);
-        addGameObject("poison", this.images.poison);
-        
-        this.createSnake();
-        this.createFood();
-        this.createBadFood();
+        addCreatedGameObject(new Snake());
+        addCreatedGameObject(new Food());
+        addCreatedGameObject(new Poison());
+        setTimeout(getGameObject("poison").move, 3000);
     }
 
     this.update = function() {
-    	var previousDirection = this.getDirection()
-        this.setDirection(getLastKeyDown());
+        var snake = getGameObject("snake");
+
+    	var previousDirection = snake.getDirection();
+        snake.setDirection(getLastKeyDown());
     	
     	// Check to make sure the direction is valid. Ignore otherwise
-    	if (previousDirection == "right" && this.direction == "left") {
-    		this.direction = previousDirection;
-    	} else if (previousDirection == "up" && this.direction == "down") {
-    		this.direction = previousDirection;
-    	} else if (previousDirection == "left" && this.direction == "right") {
-    		this.direction = previousDirection;
-    	} else if (previousDirection == "down" && this.direction == "up") {
-    		this.direction = previousDirection;
+    	if (snake.getDirection() == "") {
+    		snake.setDirection(previousDirection);
+    	} else if (previousDirection == "right" && snake.getDirection() == "left") {
+    		snake.setDirection(previousDirection);
+    	} else if (previousDirection == "up" && snake.getDirection() == "down") {
+    		snake.setDirection(previousDirection);
+    	} else if (previousDirection == "left" && snake.getDirection() == "right") {
+    		snake.setDirection(previousDirection);
+    	} else if (previousDirection == "down" && snake.getDirection() == "up") {
+    		snake.setDirection(previousDirection);
     	}
-        
-        // this is where the snake movement begins
-		// store the x and y coordinates of the head
-		var snakeX = this.snakeArray[0].x;
-		var snakeY = this.snakeArray[0].y;
-        
-        // next position of the snake head
-		if(this.direction == "right")  snakeX++;
-		else if(this.direction == "left")  snakeX--;
-		else if(this.direction == "up") snakeY--;
-		else if(this.direction == "down") snakeY++;
-		
-        // check if the snake hit the wall or collided into its own body and restart if it did
-        if(snakeX == -1 || snakeX == this.width/this.cellWidth 
-            || snakeY == -1 || snakeY == this.height/this.cellWidth 
-            || checkCollision(snakeX, snakeY, this.snakeArray)) {
-                this.gameOver();
-        	return;
-		}
-		
-		// when the snake eats food
-		if(snakeX == food.x && snakeY == food.y) {
-			var tail = {x: snakeX, y: snakeY};
-			this.score += 50;
-			this.createFood();
-		} else if(snakeX == badFood.x && snakeY == badFood.y) {
-			// pop twice to shrink the snake
-			if (this.snakeArray.length > 1 ) {
-				var tail = this.snakeArray.pop();
-				var tail = this.snakeArray.pop();
-			} else {
-				// game over because no more snake parts
-				this.gameOver();
-				return;
-			}
-			
-            tail.x = snakeX; 
-            tail.y = snakeY;
-			this.score -= 50;
-			this.createBadFood();
-		} else {
-			var tail = this.snakeArray.pop();
-            tail.x = snakeX; 
-            tail.y = snakeY;
-		}
-        
-        // add the tail to the front to make the snake move
-		this.snakeArray.unshift(tail); 
-		
-		// move bad food if 3 seconds have passed
-		if (this.badFoodTimer++ > badFood.timer) {
-			this.createBadFood();
-			this.badFoodTimer = 0;
-		}
 
-        this.uiComponents.setScore(this.score);
+        var head = snake.getHead();
+        var food = getGameObject("food");
+        var poison = getGameObject("poison");
+
+        if (head === undefined ||
+            head.sprite.X < 0 || head.sprite.X == canvas.width ||
+            head.sprite.Y < 0 || head.sprite.Y == canvas.height) {
+            this.gameOver();
+            return;
+        }
+
+        // We really should use checkCollision, although for some reasons, it's not accurate
+        if (head.sprite.X === food.sprite.X && head.sprite.Y == food.sprite.Y) {
+            snake.grow();
+            food.move();
+            this.score += 50;
+        }
+        if (head.sprite.X === poison.sprite.X && head.sprite.Y == poison.sprite.Y) {
+            if (snake.shrink() === -1) {
+                this.gameOver();
+                return;
+            }
+            poison.move();
+            this.score -= 50;
+        }
+
+        if (snake.checkCollisionWithSelf()) {
+            this.gameOver();
+            return;
+        }
+        
+        snake.move();
+
+        this.uiComponents.setScore(SCORE_STRING_ID, this.score);
     }
 
     this.draw = function() {
-        // draws the snake
-        for(var i = 0; i < this.snakeArray.length; i++) {
-            var c = this.snakeArray[i];
-            this.paintCell(c.x, c.y);
-        }
-
         // draws the food
         if (getLastKeyDown() !== null) {
         	this.unlockedElements.push(getGameObject('food'));
@@ -140,27 +276,8 @@ var SnakeGame = function() {
         }
     }
 
-    // this is temporary; creates boxes to represent snake and food
-    this.paintCell = function(x, y, color) {
-    	if (color === undefined) {
-    		color = "black";
-    	}
-		context.fillStyle = color;
-		context.fillRect(x*this.cellWidth, y*this.cellWidth, this.cellWidth, this.cellWidth);
-		context.strokeStyle = "white";
-		context.strokeRect(x*this.cellWidth, y*this.cellWidth, this.cellWidth, this.cellWidth);
-	}
-
     this.canDrawObject = function(object) {
-        var canDraw = false;
-            
-        for (var element of this.unlockedElements) {
-            if (object === element) {
-                canDraw = true;
-                break;
-            }
-        }
-        return canDraw;
+        return object.isVisible();
     }
 
     this.setActiveObjectIndex = function(index) {
@@ -171,49 +288,15 @@ var SnakeGame = function() {
         return this.activeObjectIndex;
     }
 
-    this.setDirection = function(direction) {
-        this.direction = direction;
-    }
-
-    this.getDirection = function() {
-        return this.direction;
-    }
-
-    this.createSnake = function() {
-        var length = 3;
-        this.snakeArray = [];
-        this.direction = "right";
-        for (var i = length; i >= 1; i--) {
-            this.snakeArray.push({x:i + 20, y:1 +10}) // begins in the middle of the canvas
-        }
-    }
-
-    this.createFood = function() {
-        food = {
-			x: Math.round(Math.random()*(this.width-this.cellWidth)/this.cellWidth), 
-            y: Math.round(Math.random()*(this.height-this.cellWidth)/this.cellWidth), 
-            color: "black",
-        }
-        getGameObject('food').sprite.X = food.x * this.cellWidth;
-        getGameObject('food').sprite.Y = food.y * this.cellWidth;
-    }
-    this.createBadFood = function() {
-    	badFood = {
-            x: Math.round(Math.random()*(this.width-this.cellWidth)/this.cellWidth), 
-            y: Math.round(Math.random()*(this.height-this.cellWidth)/this.cellWidth),
-            timer: 90,
-            color: "red",
-        }
-    	getGameObject('poison').sprite.X = badFood.x * this.cellWidth;
-        getGameObject('poison').sprite.Y = badFood.y * this.cellWidth;
-    }
-    
     this.gameOver = function() {
     	if (this.score > this.highScore) {
             this.highScore = this.score;
-            //this.storage.setItem("snake-high-score", this.highScore);
-            this.uiComponents.setHighScore(this.highScore);
+            this.uiComponents.setHighScore(HIGHSCORE_STRING_ID, this.highScore);
         }
-	    this.createGame()
+
+        removeGameObject("food");
+        removeGameObject("poison");
+        removeGameObject("snake");
+	    this.createGame();
     }
 }

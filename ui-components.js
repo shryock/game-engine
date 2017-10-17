@@ -58,9 +58,11 @@ var UIComponents = (function() {
             };
         };
 
-        function Score(x, y, value) {
+        function Score(x, y, id, value, color) {
             this.x = x;
             this.y = y;
+            this.id = id;
+            this.color = color;
 
             this.value = value;
 
@@ -75,16 +77,18 @@ var UIComponents = (function() {
             this.draw = function() {
                 var context = getContext();
                 var score_text = "Score: " + this.value;
+                context.fillStyle = color;
                 context.font = "30px Verdana";
                 context.fillText(score_text, this.x, this.y);
             };
         };
 
         // id is the key value reference to pass to the storage module
-        function HighScore(x, y, id) {
+        function HighScore(x, y, id, color) {
             this.x = x;
             this.y = y;
             this.id = id;
+            this.color = color;
 
             var storage = new Storage();
 
@@ -107,8 +111,34 @@ var UIComponents = (function() {
             this.draw = function() {
                 var context = getContext();
                 var high_score_text = "High Score: " + this.value;
+                context.fillStyle = color;
                 context.font = "30px Verdana";
                 context.fillText(high_score_text, this.x, this.y);
+            };
+        };
+
+        function Level(x, y, id, value, color) {
+            this.x = x;
+            this.y = y;
+            this.id = id;
+            this.color = color;
+
+            this.value = value;
+
+            this.getLevevl = function() {
+                return value;
+            };
+
+            this.setLevel = function(value) {
+                this.value = value;
+            };
+
+            this.draw = function() {
+                var context = getContext();
+                var score_text = "Level: " + this.value;
+                context.fillStyle = color;
+                context.font = "30px Verdana";
+                context.fillText(score_text, this.x, this.y);
             };
         };
 
@@ -124,58 +154,85 @@ var UIComponents = (function() {
                 return this.addUIComponent(new Alert(x, y, text, style));
             },
 
-            addScore: function(x, y, value) {
-                if (this.getScore() == null) {
-                    return this.addUIComponent(new Score(x, y, value));
+            addScore: function(x, y, id, value, color) {
+                if (this.getScore(id) == null) {
+                    return this.addUIComponent(new Score(x, y, id, value, color));
                 }
             },
 
-            addHighScore: function(x, y, id) {
-                if (this.getHighScore() == null) {
-                    return this.addUIComponent(new HighScore(x, y, id));
+            addHighScore: function(x, y, id, color) {
+                if (this.getHighScore(id) == null) {
+                    return this.addUIComponent(new HighScore(x, y, id, color));
                 }
             },
 
-            getScore: function() {
-                if (this.getScoreComponent() === null) {
+            addLevel: function(x, y, id, value, color) {
+                if (this.getLevel(id) == null) {
+                    return this.addUIComponent(new Level(x, y, id, value, color));
+                }
+            },
+
+            getScore: function(id) {
+                if (this.getScoreComponent(id) === null) {
                     return null;
                 } else {
-                    return this.getScoreComponent().getScore();
+                    return this.getScoreComponent(id).getScore();
                 }
             },
 
-            setScore: function(value) {
-                this.getScoreComponent().setScore(value);
+            setScore: function(id, value) {
+                this.getScoreComponent(id).setScore(value);
             },
 
-            getHighScore: function() {
-                if (this.getHighScoreComponent() == null) {
+            getHighScore: function(id) {
+                if (this.getHighScoreComponent(id) == null) {
                     return null;
                 } else {
-                    return this.getHighScoreComponent().getScore();
+                    return this.getHighScoreComponent(id).getScore();
                 }
             },
 
-            setHighScore: function(value) {
-                this.getHighScoreComponent().setScore(value);
+            setHighScore: function(id, value) {
+                this.getHighScoreComponent(id).setScore(value);
             },
 
-            getScoreComponent: function() {
+            getLevel: function(id) {
+                if (this.getLevelComponent(id) === null) {
+                    return null;
+                } else {
+                    return this.getLevelComponent(id).getLevel();
+                }
+            },
+
+            setLevel: function(id, value) {
+                this.getLevelComponent(id).setLevel(value);
+            },
+
+            getScoreComponent: function(id) {
                 for (let component of this.uiComponents) {
-                    if (component instanceof Score) {
+                    if (component instanceof Score && component.id === id) {
                         return component;
                     }
                 }
                 return null;
             },
 
-            getHighScoreComponent: function() {
+            getHighScoreComponent: function(id) {
                 for (let component of this.uiComponents) {
-                    if (component instanceof HighScore) {
+                    if (component instanceof HighScore && component.id === id) {
                         return component;
                     }
                 }
 
+                return null;
+            },
+
+            getLevelComponent: function(id) {
+                for (let component of this.uiComponents) {
+                    if (component instanceof Level && component.id === id) {
+                        return component;
+                    }
+                }
                 return null;
             },
 
@@ -199,6 +256,10 @@ var UIComponents = (function() {
                         component.draw();
                     }
                 }
+            },
+
+            clearUIComponents: function() {
+                this.uiComponents = [];
             }
         };
     };

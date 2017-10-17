@@ -2,34 +2,50 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Alchemy</title>
+    <title>CSC 481 Game Project</title>
     <link rel="stylesheet" type="text/css" href="styles.css"></link>
 </head>
 
-<script src="gallery.js"></script>
-
-<script>
-    var gallery = new Gallery();
-</script>
-
 <body>
-    <div id="gallery-button-bar">
-        <button onclick="gallery.initGame('snake')">Snake</button>
-        <button onclick="gallery.initGame('alchemy')">Alchemy</button>
-        <br/><br/>
-    </div>
-    <div class="canvas-container">
-        <canvas id="gamespace" width="1200" height="600">
-            Canvas not supported. Try a better browser ;)
-        </canvas>
+    <a class="prev" onclick="gallery.incrementGameCanvas(-1)">&#10094;</a>
+    <div class="game-gallery-container">
+        <div class="game-canvas-container fade">
+            <div class="game-title">Alchemy</div>
+            <canvas id="alchemy-game-canvas" class="game-canvas" width="1000" height="600">
+                Canvas not supported. Try a better browser ;)
+            </canvas>
+        </div>
+        <div class="game-canvas-container fade">
+            <div class="game-title">Snake</div>
+            <canvas id="snake-game-canvas" class="game-canvas" width="1000" height="600">
+                Canvas not supported. Try a better browser ;)
+            </canvas>
+        </div>
+        <div class="game-canvas-container fade">
+            <div class="game-title">Asteroids</div>
+            <canvas id="asteroids-game-canvas" class="game-canvas" width="1000" height="600">
+                Canvas not supported. Try a better browser ;)
+            </canvas>
+        </div>
+    </div><br/>
+    <a class="next" onclick="gallery.incrementGameCanvas(1)">&#10095;</a>
+    <div style="text-align: center">
+        <span class="dot" onclick="gallery.currentGameCanvas(0)"></span>
+        <span class="dot" onclick="gallery.currentGameCanvas(1)"></span>
+        <span class="dot" onclick="gallery.currentGameCanvas(2)"></span>
     </div>
 </body>
 
+<script src="gallery.js"></script>
 <script src="Assets.js"></script>
 <script src="storage.js"></script>
 <script src="ui-components.js"></script>
 <script src="engine.js"></script>
 <script src="alchemy.js"></script>
 <script src="snake.js"></script>
+<script src="asteroids.js"></script>
+<script>
+    var gallery = new Gallery();
+</script>
 
 </html>

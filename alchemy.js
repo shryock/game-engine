@@ -1,10 +1,12 @@
 /**
- * Alchemy game for CSC481 assignment.
+ * Game engine for CSC481 assignment.
  * Group Members:
  *     Andrew Shryock      (ajshryoc)
  *     Chris Miller        (cjmille7)
  *     Colleen Britt       (cbritt)
  *     John-Michael Caskey (jmcaskey)
+ *
+ * Alchemy game logic.
  */
 var AlchemyGame = function() {
     this.allElements = [];
@@ -81,6 +83,10 @@ var AlchemyGame = function() {
         for (var i = 0; i < colorNames.length; i++) {
             this.allElements.push(getGameObject(colorNames[i]));
         }
+
+        for (var element of this.allElements) {
+            element.setDraggable(true);
+        }
     }
 
     this.draw = function() {
@@ -92,7 +98,7 @@ var AlchemyGame = function() {
         context.beginPath();
         context.lineWidth = "6";
         context.strokeStyle = "black";
-        context.rect(0, 0, 950, window.innerHeight / 5);
+        context.rect(0, 0, canvas.width, window.innerHeight / 5);
         context.stroke();
     }
 

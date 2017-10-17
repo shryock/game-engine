@@ -1,8 +1,18 @@
+/**
+ * Game engine for CSC481 assignment.
+ * Group Members:
+ *     Andrew Shryock      (ajshryoc)
+ *     Chris Miller        (cjmille7)
+ *     Colleen Britt       (cbritt)
+ *     John-Michael Caskey (jmcaskey)
+ *
+ * Assets module. Provides functions for importing various game assets including Sprites.
+ */
 var Assets = function ()  {
 	
 	var sprites = [];
 	
-	function Sprite(x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY) {
+	function Sprite(x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY, rotation) {
 		this.X = x;
 		this.Y = y;
 		this.origX = x;
@@ -24,18 +34,26 @@ var Assets = function ()  {
 		this.image.src = src;
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
+		this.rotation = rotation;
+		this.animate = true;
 		
 		this.nextFrame = function () {
-			this.frameIndex = (this.frameIndex + 1) % this.frames;
+			if (this.animate) {
+				this.frameIndex = (this.frameIndex + 1) % this.frames;
+			}
 			
 		};
 		
-		this.draw = function(canvas) {
+		this.draw = function(context, canvas) {
+			context.save();
+			context.translate(this.X + this.width / 2, this.Y + this.height / 2);
+			context.rotate(Math.PI * this.rotation / 180);
 			if (tileWidth > 0 && tileHeight > 0) {
-				canvas.drawImage(this.image, this.offsetX + this.frameIndex * this.tileWidth, this.offsetY, this.tileWidth, this.tileHeight, this.X, this.Y, this.width, this.height);
+				context.drawImage(this.image, this.offsetX + this.frameIndex * this.tileWidth, this.offsetY, this.tileWidth, this.tileHeight, -this.width / 2, -this.height / 2, this.width, this.height);
 			} else {
-				canvas.drawImage(this.image, this.X, this.Y, this.width, this.height );
+				context.drawImage(this.image, -this.width / 2, -this.height / 2, this.width, this.height );
 			}
+			context.restore();
 		};
 		
 	}
@@ -48,12 +66,12 @@ var Assets = function ()  {
 		 * Add a new sprite the list of sprites in assets
 		 */
 		addSpriteFromSheet: function (x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY) {
-			assetList["Sprite"].push(new assetPrototype["Sprite"](x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY));
+			assetList["Sprite"].push(new assetPrototype["Sprite"](x, y, width, height, frames, src, tileWidth, tileHeight, srcWidth, srcHeight, offsetX, offsetY, 0));
 			return assetList["Sprite"][assetList["Sprite"].length - 1];
 		},
 		
 		addSprite: function (x, y, width, height, src) {
-			assetList["Sprite"].push(new assetPrototype["Sprite"](x, y, width, height, 1, src, 0, 0, width, height, 0, 0, 0, 0));
+			assetList["Sprite"].push(new assetPrototype["Sprite"](x, y, width, height, 1, src, 0, 0, width, height, 0, 0, 0, 0, 0));
 			return assetList["Sprite"][assetList["Sprite"].length - 1];
 		},
 		
@@ -83,6 +101,10 @@ var Assets = function ()  {
 		
 		getAsset: function (name, index) {
 			return assetList[name][index];
+		},
+
+		removeAsset: function (name, index) {
+			return assetList[name].splice(index, 1);
 		},
 		
 		getAssetByFunction: function (name, func) {
