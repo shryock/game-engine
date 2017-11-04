@@ -16,7 +16,6 @@ var SnakeGame = function() {
 
     this.uiComponents;
     this.activeObjectIndex;
-    this.unlockedElements = [];
 
     this.score;
     this.highScore;
@@ -166,8 +165,25 @@ var SnakeGame = function() {
         this.sprite = addSpriteFromSheet(0, 0, CELL_WIDTH, CELL_WIDTH, 10, SNAKE_SPRITESHEET_SRC, 40, 40, 200, 80, 0, 40);
 
         this.move = function() {
-            this.sprite.X = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-            this.sprite.Y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+            var filled = true;
+        	while (filled) {
+	            filled = false;
+        		var x = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+	            var y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+	            
+	            for (var segment of getGameObject("snake").snakeArray) {
+	                if (x == segment.sprite.X && y == segment.sprite.Y) {
+	                    filled = true;
+	                }
+	            }
+	            var poison = getGameObject("poison");
+	            if (poison && x == poison.sprite.X && y == poison.sprite.Y) {
+	            	filled = true;
+	            }
+        	}
+        	
+            this.sprite.X = x;
+            this.sprite.Y = y;
         };
 
         this.move();
@@ -185,8 +201,25 @@ var SnakeGame = function() {
 
         this.move = function() {
             clearInterval(window.snakePoisonInterval);
-            getGameObject("poison").sprite.X = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-            getGameObject("poison").sprite.Y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+            var filled = true;
+        	while (filled) {
+	            filled = false;
+        		var x = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+	            var y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
+	            
+	            for (var segment of getGameObject("snake").snakeArray) {
+	                if (x == segment.sprite.X && y == segment.sprite.Y) {
+	                    filled = true;
+	                }
+	            }
+	            var food = getGameObject("food");
+	            if (food && x == food.sprite.X && y == food.sprite.Y) {
+	            	filled = true;
+	            }
+        	}
+        	
+        	getGameObject("poison").sprite.X = x;
+        	getGameObject("poison").sprite.Y = y;
             window.snakePoisonInterval = setTimeout(getGameObject("poison").move, 3000);
         };
 
@@ -211,21 +244,27 @@ var SnakeGame = function() {
     this.update = function() {
         var snake = getGameObject("snake");
 
-    	var previousDirection = snake.getDirection();
-        snake.setDirection(getLastKeyDown());
-    	
-    	// Check to make sure the direction is valid. Ignore otherwise
-    	if (snake.getDirection() == "") {
-    		snake.setDirection(previousDirection);
-    	} else if (previousDirection == "right" && snake.getDirection() == "left") {
-    		snake.setDirection(previousDirection);
-    	} else if (previousDirection == "up" && snake.getDirection() == "down") {
-    		snake.setDirection(previousDirection);
-    	} else if (previousDirection == "left" && snake.getDirection() == "right") {
-    		snake.setDirection(previousDirection);
-    	} else if (previousDirection == "down" && snake.getDirection() == "up") {
-    		snake.setDirection(previousDirection);
-    	}
+        var previousDirection = snake.getDirection();
+
+        if (isKeyDown("right") && !isKeyDown("left") && !isKeyDown("up") && !isKeyDown("down")) {
+            if (previousDirection !== "left") {
+               snake.setDirection("right");
+            }
+        } else if (!isKeyDown("right") && isKeyDown("left") && !isKeyDown("up") && !isKeyDown("down")) {
+            if (previousDirection !== "right") {
+               snake.setDirection("left");
+            }
+        } else if (!isKeyDown("right") && !isKeyDown("left") && isKeyDown("up") && !isKeyDown("down")) {
+            if (previousDirection !== "down") {
+               snake.setDirection("up");
+            }
+        } else if (!isKeyDown("right") && !isKeyDown("left") && !isKeyDown("up") && isKeyDown("down")) {
+            if (previousDirection !== "up") {
+               snake.setDirection("down");
+            }
+        } else {
+            snake.setDirection(previousDirection);
+        }
 
         var head = snake.getHead();
         var food = getGameObject("food");
@@ -264,13 +303,8 @@ var SnakeGame = function() {
     }
 
     this.draw = function() {
-        // draws the food
-        if (getLastKeyDown() !== null) {
-        	this.unlockedElements.push(getGameObject('food'));
-			this.unlockedElements.push(getGameObject('poison'));
-        }
-
-        if (getLastKeyDown() == null) {
+        // Draws the start instructions
+        if (getGameObject("poison").sprite.X < 0) {
             context.font = "30px Verdana";
             context.fillText("Press a directional key to begin!", context.canvas.width/2 - 100, context.canvas.height/2);
         }

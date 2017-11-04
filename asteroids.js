@@ -19,8 +19,12 @@ var AsteroidsGame = function() {
 
     this.laserCounter;
 
-    this.totalNumberOfAsteroids;
+    this.particleSystem;
+
     this.totalNumberOfLasers;
+
+    var ASTEROID_WIDTH = 20;
+    var ASTEROID_IMG_SRC = 'sprites/asteroids/asteroid.png';
     
     var LASER_TIMER = 10;
     this.CIRCLE_DEG = 360;
@@ -54,22 +58,6 @@ var AsteroidsGame = function() {
         this.setVisibility(true);
     }
 
-    function Asteroid(x, y, id, size, speed, orientation, spin) {
-        var ASTEROID_WIDTH = 20;
-        var ASTEROID_IMG_SRC = 'sprites/asteroids/asteroid.png';
-
-        this.prototype = Object.create(GameObject.prototype);
-        GameObject.call(this);
-        this.name = "asteroid-" + id;
-        this.sprite = addSprite(x, y, size*ASTEROID_WIDTH, size*ASTEROID_WIDTH, ASTEROID_IMG_SRC);
-        this.size = size;
-        this.speed = speed;
-        this.orientation = orientation;
-        this.spin = spin;
-
-        this.setVisibility(true);
-    }
-    
     function Explosion(x, y, width, height) {
         var spriteSheet = 'sprites/asteroids/explosion.png';
         var spriteWidth = 96;
@@ -88,7 +76,7 @@ var AsteroidsGame = function() {
         		explosions[0].setVisibility(false);
                 removeGameObject(explosions[0].name);
                 }
-        }, 200)
+        }, 200);
     }
 
     function Laser(x, y, id, orientation, shipSpeed) {
@@ -105,12 +93,14 @@ var AsteroidsGame = function() {
 
         this.setVisibility(true);
 
+        var _this = this;
+
         setTimeout(function() {
             var lasers = searchForObjectsByName("laser");
             if (lasers.length > 0) {
-                lasers[0].setVisibility(false);
-                spawnExplosion(lasers[0]);
-                removeGameObject(lasers[0].name);
+                _this.setVisibility(false);
+                spawnExplosion(_this);
+                removeGameObject(_this.name);
                 }
         }, 2000);
     }
@@ -189,6 +179,11 @@ var AsteroidsGame = function() {
             }
         }
 
+        // instantiate particle system
+        this.particleSystem = new ParticleSystem("asteroid", ASTEROID_IMG_SRC, ASTEROID_WIDTH, ASTEROID_WIDTH,
+             -100, 0, -100, 0, 0, 360, 1, 3, 5, 10, undefined);
+        addCreatedGameObject(this.particleSystem);
+
         this.createShip();
     };
 
@@ -206,12 +201,13 @@ var AsteroidsGame = function() {
     			this.uiComponents.addAlert(getContext().canvas.width/2, getContext().canvas.height/2 + 35, "Press space to restart!", "bold white");
     			this.restartFlag = true;
     		}
-    		var key = getLastKeyDown();
-    		if (key === "space") {
+
+    		if (isKeyDown("space")) {
     			this.restart();
     		}
     		return;
     	}
+
         var asteroids = searchForObjectsByName("asteroid");
         var lasers = searchForObjectsByName("laser");
         var ship = getGameObject("spaceship");
@@ -236,25 +232,16 @@ var AsteroidsGame = function() {
                 // If the asteroid collides with a laser, delete them both
                 if (checkCollision(asteroid.sprite, laser.sprite)) {
                     spawnExplosion(asteroid);
-                	removeGameObject(asteroid.name);
+                	this.particleSystem.destroyParticle(asteroid.name);
                     removeGameObject(laser.name);
                     this.totalNumberOfAsteroids--;
                     this.score += 100;
                     continue;
                 }
             }
-            // Check for collision with other asteroids
-//            for (var j = i+1; j < asteroids.length; j++) {
-//                // If two asteroids collide, delete them both
-//            	if (checkCollision(asteroid.sprite, asteroids[j].sprite)) {
-//                    this.destroy(asteroid, asteroids[j]);
-//                    this.totalNumberOfAsteroids -= 2;
-//                    continue;
-//            	}
-//            }
 
             // Move the asteroid
-            move(asteroid, asteroid.orientation, asteroid.speed, asteroid.spin);
+            move(asteroid, asteroid.dir, asteroid.speed, 0);
         }
 
         // Check bounds and move all lasers
@@ -280,9 +267,14 @@ var AsteroidsGame = function() {
         // move ship
         move(ship, ship.direction, ship.speed, 0);
         
-        if (this.totalNumberOfAsteroids == 0) {
+        if (this.particleSystem.getNumberParticles() == 0) {
             this.level++;
-            this.displayAsteroids();
+            //this.displayAsteroids();
+            this.particleSystem.generateFiniteNumParticles(this.currentLevelAsteroids, 1000);
+
+            if (this.currentLevelAsteroids < MAX_NUM_ASTEROIDS) {
+                this.currentLevelAsteroids += INCREMENT_ASTEROIDS;
+            }
         }
         
         if (this.laserCounter == LASER_TIMER) {
@@ -292,14 +284,16 @@ var AsteroidsGame = function() {
         }
         
         // ship stuff below
-        var key = getLastKeyDown();
-        if (key === "up") {
+        if (isKeyDown("up")) {
         	ship.accelerate();
-        } else if (key === "right") {
+        }
+        if (isKeyDown("right")) {
         	ship.setOrientation((ship.getOrientation()+this.TURN_SPEED) % this.CIRCLE_DEG);
-        } else if (key === "left") {
+        }
+        if (isKeyDown("left")) {
         	ship.setOrientation((ship.getOrientation()-this.TURN_SPEED) % this.CIRCLE_DEG);
-        } else if (key === "space" && this.canShoot) {
+        }
+        if (isKeyDown("space") && this.canShoot) {
         	this.shootLaser(ship);
         	this.canShoot = false;
         	this.laserCounter = 0;
@@ -375,59 +369,6 @@ var AsteroidsGame = function() {
     	}
     	addCreatedGameObject(new Explosion(x, y, width, height));
     }
-    
-    
-    this.generateAsteroid = function() {
-        var index  = searchForObjectsByName("asteroid").length;
-        var canvas = getContext().canvas;
-
-        // For randomly generating within a range of whole numbers use the formula:
-        // Math.round(Math.random() * (max - min) + min)
-        var location  = Math.round(Math.random()*(4 - 1) + 1);
-        var x;
-        var y;
-        var dir;
-        var size  = Math.round(Math.random()*(3 - 1) + 1);  // only 20-60 pixels^2
-        var speed = Math.round(Math.random()*(10 - 5) + 5); // only 5 pixels/frame - 10 pixels/frame
-        var spin  = Math.round(Math.random()*(30 - 1) + 1); // 30 degrees/frame or less
-
-        switch (location) {
-            case 1:                          // above the screen
-                x   = Math.round(Math.random()*canvas.width);
-                y   = Math.round(Math.random()*(-10 - -50) + -10);
-                dir = Math.round(Math.random()*(270 - 90) + 90);
-                break;
-            case 2:                         // right of the screen
-                x   = Math.round(Math.random()*(canvas.width + 50 - (canvas.width + 10)) + (canvas.width + 10));
-                y   = Math.round(Math.random()*canvas.height);
-                dir = Math.round(Math.random()*-180);
-                break;
-            case 3:                         // below the screen
-                x   = Math.round(Math.random()*canvas.width);
-                y   = Math.round(Math.random()*(canvas.height + 50 - (canvas.height + 10)) + (canvas.height + 10));
-                dir = Math.round(Math.random()*(90 - -90) + -90);
-                break;
-            case 4:                         // left of the screen
-                x   = Math.round(Math.random()*(canvas.width -50 - (canvas.width - 10)) + (canvas.width - 10));
-                y   = Math.round(Math.random()*canvas.height);
-                dir = Math.round(Math.random()*(180));
-                break;
-        }
-
-        dir = Math.round(Math.random()*-180);
-
-        addCreatedGameObject(new Asteroid(x, y, this.totalNumberOfAsteroids, size, speed, dir, spin));
-        this.totalNumberOfAsteroids++;
-    };
-
-    this.displayAsteroids = function() {
-        for (var i = 0; i < this.currentLevelAsteroids; i++) {
-            this.generateAsteroid();
-        }
-        if (this.currentLevelAsteroids < MAX_NUM_ASTEROIDS) {
-            this.currentLevelAsteroids += INCREMENT_ASTEROIDS;  
-        }
-    };
 
     this.gameOver = function() {
     	this.state = "gameover";

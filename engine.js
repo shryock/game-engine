@@ -11,14 +11,14 @@
 var assets = new Assets();
 var game;
 var gameObjects = [];
-var lastKeyDown = null;
 var gameLoopInterval;
+var keyMap = {};
 
 var canvas;
 var context;
 
-window.addEventListener("keydown", handleKeyDown);
-window.addEventListener("keyup", handleKeyUp);
+window.addEventListener("keydown", handleKeyPress);
+window.addEventListener("keyup", handleKeyPress);
 
 function GameObject(name, sprite) {
   this.name = name;
@@ -166,42 +166,39 @@ function handleMouseMove(e) {
   }
 }
 
-function handleKeyUp(e) {
-	lastKeyDown = "";
+function handleKeyPress(e) {
+  e = e || event;
+  keyMap[e.keyCode] = e.type == 'keydown';
 }
 
-function handleKeyDown(e) {
-  // Switch on the key code for the key being held down
-  switch (e.which) {
-    // Left arrow key
-    case 37:
-      lastKeyDown = "left";
+/**
+ * Returns true if the passed in key is pressed.
+ * Takes in a keyCode. I have hardcoded some strings that can be passed
+ * in that will translate to a keyCode (left, up, right, down, space).
+ * We can easily add more here to act as shortcuts rather than using keyCodes.
+ */
+function isKeyDown(key) {
+  var keyCode;
+  switch(key) {
+    case "left":
+      keyCode = 37;
       break;
-    // Up arrow key
-    case 38:
-      lastKeyDown = "up";
+    case "up":
+      keyCode = 38;
       break;
-    // Right arrow key
-    case 39:
-      lastKeyDown = "right";
+    case "right":
+      keyCode = 39;
       break;
-    // Down arrow key
-    case 40:
-      lastKeyDown = "down";
+    case "down":
+      keyCode = 40
       break;
-    case 32:
-      lastKeyDown = "space";
+    case "space":
+      keyCode = 32;
       break;
-    // Any behavior needed for the rest of the key set
-    // For snake, we may need to add some more
     default:
-      lastKeyDown = "";
-      break;
+      keyCode = key;
   }
-}
-
-function getLastKeyDown() {
-  return lastKeyDown;
+  return keyMap[keyCode];
 }
 
 // Basically, there is a collision if:
@@ -264,6 +261,18 @@ function checkSprite(sprite, x, y) {
 
 function getContext() {
   return context;
+}
+
+// Calls callback n number of times with a delay in between
+function setTimer(callback, delay, n) {
+  var i = 0;
+  var interval = setInterval(function() {
+    callback();
+
+    if (++i === n) {
+      clearInterval(interval);
+    }
+  }, delay);
 }
 
 function update() {
