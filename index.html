@@ -27,12 +27,19 @@
                 Canvas not supported. Try a better browser ;)
             </canvas>
         </div>
+            <div class="game-canvas-container fade">
+            <div class="game-title">Local Multiplayer Snake</div>
+            <canvas id="local-multiplayer-snake-game-canvas" class="game-canvas" width="1000" height="600">
+                Canvas not supported. Try a better browser ;)
+            </canvas>
+        </div>
     </div><br/>
     <a class="next" onclick="gallery.incrementGameCanvas(1)">&#10095;</a>
     <div style="text-align: center">
         <span class="dot" onclick="gallery.currentGameCanvas(0)"></span>
         <span class="dot" onclick="gallery.currentGameCanvas(1)"></span>
         <span class="dot" onclick="gallery.currentGameCanvas(2)"></span>
+        <span class="dot" onclick="gallery.currentGameCanvas(3)"></span>
     </div>
 </body>
 
@@ -45,6 +52,7 @@
 <script src="alchemy.js"></script>
 <script src="snake.js"></script>
 <script src="asteroids.js"></script>
+<script src="local-multiplayer-snake.js"></script>
 <script>
     var gallery = new Gallery();
 </script>

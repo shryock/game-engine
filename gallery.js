@@ -30,6 +30,10 @@ var Gallery = function() {
                 startGame(new AsteroidsGame(), 30, document.getElementById('asteroids-game-canvas'));
                 this.gameHasStarted = true;
                 break;
+            case 3:
+                startGame(new LocalMultiplayerSnakeGame(), 60, document.getElementById('local-multiplayer-snake-game-canvas'));
+                this.gameHasStarted = true;
+                break;
             default:
                 console.log("Invalid game selected.");
         }

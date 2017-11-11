@@ -195,6 +195,19 @@ function isKeyDown(key) {
     case "space":
       keyCode = 32;
       break;
+    case "w":
+      keyCode = 87;
+      break;
+    case "a":
+      keyCode = 65;
+      break;
+    case "s":
+      keyCode = 83;
+      break;
+    case "d":
+      keyCode = 68;
+      break;
+    
     default:
       keyCode = key;
   }
