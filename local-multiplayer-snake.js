@@ -18,7 +18,7 @@ var LocalMultiplayerSnakeGame = function() {
 
     this.uiComponents;
     this.activeObjectIndex;
-    
+
     var state;
     var restartFlag;
     var restartTimer;
@@ -97,7 +97,6 @@ var LocalMultiplayerSnakeGame = function() {
             		x = canvas.width/2 - 3 * CELL_WIDTH;
                     y = canvas.height/2;
             	}
-                
             }
 
             this.snakeArray.push(new SnakeSegment(x, y));
@@ -180,7 +179,6 @@ var LocalMultiplayerSnakeGame = function() {
             }
             return false;
         };
-        
         this.checkCollisionWithPlayer = function() {
         	var other = getGameObject("snake" + ( Math.abs(player - 1) ));
         	for (var segment of other.snakeArray) {
@@ -435,7 +433,7 @@ var LocalMultiplayerSnakeGame = function() {
         	this.gameOver();
             return;
         }
-    
+
         snake.move();
 
         if (player == 0) {
@@ -443,7 +441,6 @@ var LocalMultiplayerSnakeGame = function() {
         } else if (player == 1) {
             this.uiComponents.setScore(SCORE_STRING_ID2, this.score[player]);
         }
-        
     }
 
     this.draw = function() {
@@ -452,10 +449,6 @@ var LocalMultiplayerSnakeGame = function() {
             context.font = "30px Verdana";
             context.fillText("Press a directional key to begin!", context.canvas.width/2 - 100, context.canvas.height/2);
         }
-    }
-
-    this.canDrawObject = function(object) {
-        return object.isVisible();
     }
 
     this.setActiveObjectIndex = function(index) {

@@ -92,6 +92,7 @@ var AsteroidsGame = function() {
         this.speed = LASER_SPEED + SHIP_SPEED;
 
         this.setVisibility(true);
+        this.setCollidability(true);
 
         var _this = this;
 
@@ -154,6 +155,7 @@ var AsteroidsGame = function() {
         	this.setSpeed(Math.sqrt( Math.pow(x3, 2) + Math.pow(y3, 2) ));
         };
         this.setVisibility(true);
+        this.setCollidability(true);
     }
 
     this.createGame = function() {
@@ -181,7 +183,7 @@ var AsteroidsGame = function() {
 
         // instantiate particle system
         this.particleSystem = new ParticleSystem("asteroid", ASTEROID_IMG_SRC, ASTEROID_WIDTH, ASTEROID_WIDTH,
-             -100, 0, -100, 0, 0, 360, 1, 3, 5, 10, undefined);
+             -100, 0, -100, 0, 0, 360, 1, 3, 5, 10, undefined, true);
         addCreatedGameObject(this.particleSystem);
 
         this.createShip();
@@ -221,7 +223,7 @@ var AsteroidsGame = function() {
             }
 
             // Check collision with ship
-            if (checkCollision(asteroid.sprite, ship.sprite)) {
+            if (checkCollision(asteroid, ship)) {
                 this.gameOver();
                 return;
             }
@@ -230,7 +232,7 @@ var AsteroidsGame = function() {
             for (var j = 0; j < lasers.length; j++) {
                 var laser = lasers[j];
                 // If the asteroid collides with a laser, delete them both
-                if (checkCollision(asteroid.sprite, laser.sprite)) {
+                if (checkCollision(asteroid, laser)) {
                     spawnExplosion(asteroid);
                 	this.particleSystem.destroyParticle(asteroid.name);
                     removeGameObject(laser.name);
@@ -301,10 +303,6 @@ var AsteroidsGame = function() {
 
         this.uiComponents.setScore(SCORE_STRING_ID, this.score);
         this.uiComponents.setLevel(LEVEL_STRING_ID, this.level);
-    };
-
-    this.canDrawObject = function(object) {
-        return object.isVisible();
     };
 
     // Setter for the activeObjectIndex field; use this to maintain the selected object index

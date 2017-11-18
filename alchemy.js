@@ -26,7 +26,6 @@ var AlchemyGame = function() {
     // Acts as a user putting information into the game engine.
     this.createGame = function() {
         // load images into an array
-        // TODO implement sprite sheet instead of imgur links
         var images = [];
         images.push("http://i.imgur.com/JNn8XXv.png"); // white
         images.push("http://i.imgur.com/X1m87mx.png"); // red
@@ -87,6 +86,11 @@ var AlchemyGame = function() {
         for (var element of this.allElements) {
             element.setDraggable(true);
         }
+
+        for (var element of this.unlockedElements) {
+            element.setVisibility(true);
+            element.setCollidability(true);
+        }
     }
 
     this.draw = function() {
@@ -129,26 +133,14 @@ var AlchemyGame = function() {
                     }
                     this.newColor = output.name;
                     this.unlockedElements.push(output);
+                    output.setVisibility(true);
+                    output.setCollidability(true);
                     firstElement.resetPosition();
                     secondElement.resetPosition();
                     this.setActiveObjectIndex(-1);
                 }
             }
         }
-    }
-
-    // Returns true if the element can be draw (is contained in unlockedElements array)
-    this.canDrawObject = function(object) {
-        var canDraw = false;
-
-        for (var element of this.unlockedElements) {
-            if (object === element) {
-                canDraw = true;
-                break;
-            }
-        }
-
-        return canDraw;
     }
 
     // Setter for the activeObjectIndex field; use this to maintain the selected object index
@@ -195,7 +187,7 @@ var AlchemyGame = function() {
 
     function canCombine(element1, element2) {
       var spritesOutOfBox = !isInBox(element1) && !isInBox(element2);
-      var areColliding = checkCollision(element1.sprite, element2.sprite);
+      var areColliding = checkCollision(element1, element2);
       return spritesOutOfBox && areColliding;
     }
 }

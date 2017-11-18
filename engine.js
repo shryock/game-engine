@@ -9,6 +9,7 @@
  * Main engine module. This defines the global API for referenceing the engine.
  */
 var assets = new Assets();
+var collisions;
 var game;
 var gameObjects = [];
 var gameLoopInterval;
@@ -25,6 +26,7 @@ function GameObject(name, sprite) {
   this.sprite = sprite;
   this.draggable = false;
   this.visible = false;
+  this.collidable = false;
 
   this.resetPosition = function() {
     this.sprite.X = this.sprite.origX;
@@ -36,7 +38,7 @@ function GameObject(name, sprite) {
   };
 
   this.draw = function() {
-    if (game.canDrawObject(this)) {
+    if (this.isVisible()) {
     	this.sprite.draw(context, canvas);
     }
   };
@@ -55,6 +57,14 @@ function GameObject(name, sprite) {
 
   this.isVisible = function() {
     return this.visible;
+  };
+
+  this.setCollidability = function(collidable) {
+    this.collidable = collidable;
+  };
+
+  this.isCollidable = function() {
+    return this.collidable;
   };
 }
 
@@ -207,6 +217,9 @@ function isKeyDown(key) {
     case "d":
       keyCode = 68;
       break;
+    case "shift":
+      keyCode = 16;
+      break;
     
     default:
       keyCode = key;
@@ -214,25 +227,8 @@ function isKeyDown(key) {
   return keyMap[keyCode];
 }
 
-// Basically, there is a collision if:
-//     right of sprite1 < left of sprite2
-//     left of sprite1 > right of sprite2
-//     bottom of sprite1 < top of sprite2
-//     top of sprite1 > bottom of sprite2
-function checkCollision(sprite1, sprite2, array) {
-  if (array != undefined) {
-    for(var i = 0; i < array.length; i++) {
-      if(array[i].x === sprite1 && array[i].y === sprite2) // sprite1 is x, sprite2 is y
-      return true;
-    } 
-    return false;
-  } else {
-    return !((sprite1.X + sprite1.width) < sprite2.X  ||
-      sprite1.X > (sprite2.X + sprite2.width)         ||
-     (sprite1.Y + sprite1.height) < sprite2.Y         ||
-      sprite1.Y > (sprite2.Y + sprite2.height));
-  }
-  
+function checkCollision(object1, object2) {
+  return collisions.checkCollision(object1, object2);
 }
 
 // Returns true if the object is out of bounds
@@ -290,6 +286,13 @@ function setTimer(callback, delay, n) {
 
 function update() {
   game.update();
+
+  this.collisions.clear();
+  for (var gameObject of gameObjects) {
+    if (gameObject.isCollidable()) {
+      collisions.registerObject(gameObject);
+    }
+  }
 }
 
 function draw() {
@@ -303,6 +306,10 @@ function draw() {
   }
 
   UIComponents.getInstance().draw();
+
+  if (isKeyDown("shift")) {
+    renderQuadTree(this.collisions.quadTree);
+  }
 }
 
 function move(object, direction, speed, spin) {
@@ -331,6 +338,8 @@ function startGame(newGame, gameLoopSpeed, gameCanvas) {
   canvas.addEventListener("mousedown", handleMouseDown);
   canvas.addEventListener("mouseup", handleMouseUp);
 
+  collisions = new CollisionSystem(canvas.width, canvas.height);
+
   loadContent();
   gameLoopInterval = setInterval(game_loop, gameLoopSpeed);
 }
@@ -343,4 +352,29 @@ function loadContent() {
 function game_loop() {
   update();
   draw();
+}
+
+// Debug feature; visually renders the CollisionSystem's QuadTree. Press shift to activate
+var renderQuadTree = function (quadTree) {
+    // Draw a rectangle for the node
+    context.beginPath();
+    context.rect(quadTree.aabb.center.x - quadTree.aabb.half.x, quadTree.aabb.center.y - quadTree.aabb.half.y,
+                 quadTree.aabb.half.x * 2, quadTree.aabb.half.y * 2);
+    context.lineWidth = 1;
+    context.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    context.stroke();
+
+    context.beginPath();
+    context.fillStyle = 'white';
+    context.fillText(quadTree.points.length, quadTree.aabb.center.x, quadTree.aabb.center.y);
+    context.fill();
+
+    // Recursive end case; hitting a node with no sub-QuadTrees
+    if (!quadTree.nw) return;
+
+    // Recursively render all sub-QuadTrees
+    renderQuadTree(quadTree.nw);
+    renderQuadTree(quadTree.ne);
+    renderQuadTree(quadTree.sw);
+    renderQuadTree(quadTree.se);
 }

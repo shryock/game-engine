@@ -34,6 +34,10 @@ var Gallery = function() {
                 startGame(new LocalMultiplayerSnakeGame(), 60, document.getElementById('local-multiplayer-snake-game-canvas'));
                 this.gameHasStarted = true;
                 break;
+            case 4:
+                startGame(new OnlineMultiplayerSnakeGame(), 100, document.getElementById('online-multiplayer-snake-game-canvas'));
+                this.gameHasStarted = true;
+                break;
             default:
                 console.log("Invalid game selected.");
         }

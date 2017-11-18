@@ -310,10 +310,6 @@ var SnakeGame = function() {
         }
     }
 
-    this.canDrawObject = function(object) {
-        return object.isVisible();
-    }
-
     this.setActiveObjectIndex = function(index) {
         this.activeObjectIndex = index;
     }

@@ -33,6 +33,21 @@
                 Canvas not supported. Try a better browser ;)
             </canvas>
         </div>
+        <div>
+            <div class="game-canvas-container fade">
+                <div class="game-title">Online Multiplayer Snake</div>
+                <canvas id="online-multiplayer-snake-game-canvas" class="game-canvas" width="1000" height="600">
+                    Canvas not supported. Try a better browser ;)
+                </canvas>
+                <select id="online-snake-options">
+                    <option value="create-room">Create Room</option>
+                    <option value="join-room">Join Room</option>
+                </select>
+                Room name:
+                <input id="room-id" type="text">
+                <button id="room-id-submit" type="submit">Submit</button>
+            </div>
+        </div>
     </div><br/>
     <a class="next" onclick="gallery.incrementGameCanvas(1)">&#10095;</a>
     <div style="text-align: center">
@@ -40,19 +55,32 @@
         <span class="dot" onclick="gallery.currentGameCanvas(1)"></span>
         <span class="dot" onclick="gallery.currentGameCanvas(2)"></span>
         <span class="dot" onclick="gallery.currentGameCanvas(3)"></span>
+        <span class="dot" onclick="gallery.currentGameCanvas(4)"></span>
     </div>
 </body>
 
+<!-- External Libraries -->
+<script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
+
+<!-- Import frontend code -->
 <script src="gallery.js"></script>
+
+<!-- Import backend engine code -->
 <script src="Assets.js"></script>
 <script src="storage.js"></script>
 <script src="ui-components.js"></script>
 <script src="particle-system.js"></script>
+<script src="collision-system.js"></script>
 <script src="engine.js"></script>
+
+<!-- Import backend game code -->
 <script src="alchemy.js"></script>
 <script src="snake.js"></script>
 <script src="asteroids.js"></script>
 <script src="local-multiplayer-snake.js"></script>
+<script src="online-multiplayer-snake.js"></script>
+
+<!-- Initialize the page by starting up the Gallery -->
 <script>
     var gallery = new Gallery();
 </script>

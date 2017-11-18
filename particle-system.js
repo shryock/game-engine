@@ -8,7 +8,7 @@
  *
  * ParticleSystem object.
  */
-function ParticleSystem(particleName, spriteSrc, baseWidth, baseHeight, minX, maxX, minY, maxY, minDir, maxDir, minSize, maxSize, minSp, maxSp, timeout) {
+function ParticleSystem(particleName, spriteSrc, baseWidth, baseHeight, minX, maxX, minY, maxY, minDir, maxDir, minSize, maxSize, minSp, maxSp, timeout, collidable) {
     this.prototype = Object.create(GameObject.prototype);
     GameObject.call(this);
 
@@ -33,8 +33,9 @@ function ParticleSystem(particleName, spriteSrc, baseWidth, baseHeight, minX, ma
     this.particles = [];
     this.numberOfParticles = 0;
     this.interval;
+    this.isParticleCollidable = collidable;
 
-    function Particle(name, spriteSrc, baseWidth, baseHeight, id, x, y, dir, size, speed) {
+    function Particle(name, spriteSrc, baseWidth, baseHeight, id, x, y, dir, size, speed, collidable) {
         this.prototype = Object.create(GameObject.prototype);
         GameObject.call(this);
 
@@ -47,6 +48,7 @@ function ParticleSystem(particleName, spriteSrc, baseWidth, baseHeight, minX, ma
         this.speed = speed;
 
         this.setVisibility(true);
+        this.setCollidability(collidable);
     }
 
     this.draw = function() {
@@ -62,7 +64,7 @@ function ParticleSystem(particleName, spriteSrc, baseWidth, baseHeight, minX, ma
         var size = Math.round(Math.random()*(this.maxSize - this.minSize) + this.minSize);
         var speed = Math.round(Math.random()*(this.maxSp - this.minSp) + this.minSp);
 
-        var particle = new Particle(this.particleName, this.spriteSrc, this.baseWidth, this.baseHeight, this.numberOfParticles++, x, y, dir, size, speed);
+        var particle = new Particle(this.particleName, this.spriteSrc, this.baseWidth, this.baseHeight, this.numberOfParticles++, x, y, dir, size, speed, this.isParticleCollidable);
         this.particles.push(particle);
         addCreatedGameObject(particle);
 
