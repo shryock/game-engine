@@ -27,7 +27,7 @@
                 Canvas not supported. Try a better browser ;)
             </canvas>
         </div>
-            <div class="game-canvas-container fade">
+        <div class="game-canvas-container fade">
             <div class="game-title">Local Multiplayer Snake</div>
             <canvas id="local-multiplayer-snake-game-canvas" class="game-canvas" width="1000" height="600">
                 Canvas not supported. Try a better browser ;)
@@ -48,6 +48,12 @@
                 <button id="room-id-submit" type="submit">Submit</button>
             </div>
         </div>
+        <div class="game-canvas-container fade">
+            <div class="game-title">Cops and Robbers</div>
+            <canvas id="cops-and-robbers-game-canvas" class="game-canvas" width="1000" height="600">
+                Canvas not supported. Try a better browser ;)
+            </canvas>
+        </div>
     </div><br/>
     <a class="next" onclick="gallery.incrementGameCanvas(1)">&#10095;</a>
     <div style="text-align: center">
@@ -56,6 +62,7 @@
         <span class="dot" onclick="gallery.currentGameCanvas(2)"></span>
         <span class="dot" onclick="gallery.currentGameCanvas(3)"></span>
         <span class="dot" onclick="gallery.currentGameCanvas(4)"></span>
+        <span class="dot" onclick="gallery.currentGameCanvas(5)"></span>
     </div>
 </body>
 
@@ -79,6 +86,7 @@
 <script src="asteroids.js"></script>
 <script src="local-multiplayer-snake.js"></script>
 <script src="online-multiplayer-snake.js"></script>
+<script src="cops-and-robbers.js"></script>
 
 <!-- Initialize the page by starting up the Gallery -->
 <script>

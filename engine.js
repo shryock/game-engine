@@ -378,3 +378,44 @@ var renderQuadTree = function (quadTree) {
     renderQuadTree(quadTree.sw);
     renderQuadTree(quadTree.se);
 }
+
+// create a node for linked lists
+function Node(parent, x, y) {
+	var newNode = {
+		parent: parent,
+		x: x,
+		y: y,
+		expanded: false,
+		// direction taken to get to this tile
+		direction: "",
+		// heuristic cost
+		f: 0,
+		// distance from start
+		g: 0,
+		// f+g, used for sorting
+		fg: 0
+	};
+	
+	return newNode;
+}
+
+// calculate the distance to the root
+function distanceToRoot(root, node) {
+	var count = 0;
+	while (root != node) {
+		node = node.parent;
+		count++;
+	}
+	
+	return count;
+}
+
+//// sort by heuristic + distance from start
+//function addSort(root, node) {
+//	var curNode = root;
+//	if ((curNode.f+curNode.g) > (node.f+node.g)) {
+//		
+//	}
+//	
+//	
+//}

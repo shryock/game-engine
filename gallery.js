@@ -38,6 +38,10 @@ var Gallery = function() {
                 startGame(new OnlineMultiplayerSnakeGame(), 100, document.getElementById('online-multiplayer-snake-game-canvas'));
                 this.gameHasStarted = true;
                 break;
+            case 5:
+                startGame(new CopsAndRobbersGame(), 150, document.getElementById('cops-and-robbers-game-canvas'));
+                this.gameHasStarted = true;
+                break;
             default:
                 console.log("Invalid game selected.");
         }
