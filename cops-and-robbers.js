@@ -478,6 +478,8 @@ var CopsAndRobbersGame = function() {
 			robber.robberAI();
 			var x = robber.sprite.X/TILE_WIDTH;
 			var y = robber.sprite.Y/TILE_HEIGHT;
+			var curX = x;
+			var curY = y;
 
 			if (robber.direction == "left")
 				x--;
@@ -490,6 +492,7 @@ var CopsAndRobbersGame = function() {
 			if (this.isValidDirection(x,y))
 				this.moveObj(robber);
 			else {
+				grid.getTile(curX,curY).setType("walkable");
 				robbers.splice(robbers.indexOf(robber), 1);
 				removeGameObject(robber.name);
 				NUM_ROBBERS--;

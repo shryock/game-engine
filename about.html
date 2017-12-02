@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>About our project</title>
+    <link rel="stylesheet" type="text/css" href="styles.css"></link>
+</head>
+
+<body>
+    <h1 class="heading">About our project</h1>
+    <div class="descriptive-text">
+        Created by Andrew Shryock, Chris Miller, Colleen Britt, and John-Michael Caskey as part of a semester-long project for 
+        NC State's CSC481 Game Engine Foundations course.
+    </div>
+
+    <h2 class="heading">Getting Started</h2>
+    <div class="descriptive-text">
+        To start using our engine for development of your own game, take a look at our examples! The game engine is initialized by calling 
+        the startGame function in engine.js. This function requires the specification of a game class. Any newly created game classes must 
+        contain createGame, update, and draw functions at a minimum. Within your game codes, utilize the GameObject class to make the most 
+        of the engine's functionality.<br/><br/>
+
+        To include the engine in your project, download the necessary components and include the engine files (engine.js, Assets.js, 
+        storage.js, ui-components.js, particle-system.js, and collision-system.js) in your main HTML file. From there, all you have to do 
+        is setup your HTML canvas and initialize the engine. An example of the latter step can be found in gallery.js.<br/><br/>
+
+        Download the source code to get started <a href="https://github.ncsu.edu/ajshryoc/csc481-engine" target="_blank" class="link-text">here</a>!
+    </div>
+
+    <h2 class="heading">The Engine</h2>
+    <div class="descriptive-text">This engine was constructed based on what game developers will need to create their 2D games. It is important that games have basic functionality, such as updating the game to reflect the user's input and managing all of the game objects, both active and in
+    active. It wouldn't be a game without a collision system, and a good particle system makes the games more interesting. The following describes how each part of the engine functions. </div>
+    <div>
+        <h3 class="heading">Game Loop and GameObject Definition</h3>
+            <div class="descriptive-text">
+                The game engine is essentially an infinite loop that is broken down into two components: 
+                Update and Draw. The game loop is initialized by calling the startGame() function. This 
+                will setup and interval to call the game loop at a passed-in speed. From there, the engine 
+                will automatically update and draw all registered game elements. This is done through the 
+                GameObject class. Every piece of your game that you want to see or interact with should 
+                inherit the GameObject class. The GameObject class provides standard ways to register 
+                sprites and set them as visible or collidable, for example.
+            </div>
+        <h3 class="heading">User Input</h3>
+            <div class="descriptive-text">
+                The game engine provides basic functionality for accepting user input from both the 
+                keyboard and mouse. Set the draggable property of any GameObject to make it moveable 
+                by clicking and dragging the mouse. Call the isKeyDown function to query the game engine 
+                for the current status of any key. This function utilizes keycodes and provides a series 
+                of shortcuts ("left", "right", "space", etc.) for commonly used keys, rathering than 
+                having to remember the keycode. The engine supports the ability to hold down multiple 
+                at any given time.
+            </div>
+        <h3 class="heading">Asset Management System</h3>
+            <div class="descriptive-text">
+                Asset creation, maintenance, deletion is handled by the engine. Many of the game objects 
+                inherit properites, and functions for a Game Object Prototype before defining game specific 
+                characteristics. Assets system is design for easy retrival of objects allowing for search 
+                and retrieval of objects by name. Linking sprites to objects has been abstracted so that 
+                single frame sprites and animating sprite sheets are accepted and can be added at the 
+                engine level through a set of functions.
+            </div>
+        <h3 class="heading">Particle System</h3>
+            <div class="descriptive-text">
+                The engine deploys a particle system design to maintain, create, update and destroy 
+                particles in game. The particle system allows for emitting particles in regions defined at 
+                system initialization. Emission characteristics are definable allowing for toggleable 
+                emission, variable rate, and finite or infinite emission. Referencing global 
+                characteristics such as particle list and count are available via function call.
+            </div>
+        <h3 class="heading">Physics</h3>
+            <div class="descriptive-text">
+                The game engine supports a rigid-body collision system. This is completed using a QuadTree 
+                data structure and Axis-Aligned Bounding Boxes for all GameObjects with sprites. In order 
+                to utilize the collision system, simply register any GameObject with a sprite with the 
+                collision system by setting the GameObject's collidability field to true using the setter. 
+                This will then ensure that the GameObject is added to the QuadTree on each update. From 
+                there, use the checkCollision() function to query the collision system for a specific 
+                collision between two GameObjects. The QuadTree data structure serves as a broad-phase 
+                collision detection algorithm, which greatly reduces the total number of collision checks 
+                per tick, since only GameObjects that are close to each other are checked for collisions.
+            </div>
+        <h3 class="heading">Local Storage System</h3>
+            <div class="descriptive-text">
+                Local storage functionality has been added and can be accessed using a defined storage 
+                object. Storage object contains functions for retrieving objects by name such as persistent 
+                stats between game sittings i.e. score.
+            </div>
+        <h3 class="heading">UI Componenets Library</h3>
+            <div class="descriptive-text">
+                The game engine comes with a UI Components library for common game UI elements including 
+                score, high score, boxes, and alerts. The library is easily extendable to add additional 
+                HTML canvas-based common UI components for any game. Use the public functions associated 
+                with the UIComponents class to use this functionality.
+            </div>
+    </div>
+    <h2 class="heading">The Games</h2>
+    <div>
+        <div>The games created showcase the different aspects of the engine. They may look simple,
+        but, underneath the surface, they are complex. However, the engine will make it easy for game developers to create their games. They would only need to worry about their game's logic. From collision and asset systems to impressive AI capabilites, this engine will allow game developers to create fantastic 2D games.The following describes the games and how to play them, so everyone can test the engine while having fun.</div>
+        <h3 class="heading">Alchemy</h3>
+        	<div class="controls"> Controls: <ul><li>Click and drag the elements to combine</li></ul></div>
+            <div>Alchemy puts a fresh and colorful spin on the classic game of combining elements! <br/>
+            Click and drag the elements out of the box. Once they collide, a new color will be created. <br/>
+            Can you find all eleven colors?</div>
+        <h3 class="heading">Snake</h3>
+        	<div class="controls"> Controls:
+        		<ul>
+        			<li>Arrow Keys to change direction</li>
+        		</ul>
+        	</div>
+            <div>Dating all the way back to 1976, Snake is a great example of a conceptually simple yet challenging game.<br/>
+            Use the arrow keys to move the snake around the playing field. Pick up the black circles to increase the length of your snake. <br/>
+            Watch out for the poisonous red spikes! They will decrease the length of your snake. <br/>
+            Try to get the highest score by having the longest snake. However, don't bump into the walls or yourself; that will be game over! </div>
+        <h3 class="heading">Asteroids</h3>
+	        <div class="controls"> Controls:
+		        <ul>
+			        <li>Left and Right Arrow Keys to turn</li>
+			        <li>Up Arrow Key to move forward</li>
+			        <li>Space to shoot</li>
+		        </ul>
+	        </div>
+            <div>Yet another classic game, Asteroids takes advantage of the engine's particle system to create an entertaining space adventure.<br>
+            Use the arrow keys to maneuver the ship around space while avoiding the deadly asteroids. Use the space bar to shoot missiles!<br>
+            After all the asteroids are destroyed, a new level will begin. Try to get the high score!</div>
+        <h3 class="heading">Local Multiplayer Snake</h3>
+        	<div class="controls"> Controls:
+        		<ul>
+        			<li class="blue">Arrow Keys to change direction for blue snake</li>
+        			<li class="red">WASD to change direction for orange snake</li>
+        		</ul>
+        	</div>
+            <div>Everyone's favorite snake-based game just hit multiplayer! What started as a single player strategy game turned into a chaotic battle of the ages.<br>
+            The blue snake is controlled by the arrow keys, while the orange snake is controlled by WASD.<br>
+            The longer snake at game over wins. Will you try to play fair? Or perhaps sabotage the enemy? The choice is yours!</div>
+        <h3 class="heading">Online Multiplayer Snake</h3>
+			<div class="controls"> Controls:
+        		<ul>
+        			<li>Arrow Keys to change direction</li>
+        		</ul>
+        	</div>
+            <div>Everyone's favorite snake-based game just hit <strong>online</strong> multiplayer! What started as a single player strategy game turned into a chaotic battle of the ages <strong>over the internet!</strong><br>
+            After connecting to a room, use the arrow keys to control your snake.<br>
+            The longer snake at game over wins. Will you try to play fair? Or perhaps sabotage the enemy? The choice is yours!</div>
+        <h3 class="heading">Cops and Robbers</h3>
+        	<div class="controls"> Controls:
+        		<ul>
+        			<li>Arrow Keys to move</li>
+        		</ul>
+        	</div>
+            <div>Are you a paragon of justice, hoping to exterminate all villainy? Are you a degenerate waste of space, hoping to make a quick buck through stealing? Great news, Cops and Robbers is for you!<br>
+            After selecting a side, use the arrow keys to move your character. As a cop, try to block the robbers into a corner. As a robber, try to avoid the cops.<br>
+            The cops win if there are no more robbers, the robbers win if they survive 100 turns. Good luck!</div>
+    </div><br/>
+    <a class="link-text" href="index.html">Back to games</a>
+</body>
+
+</html>
