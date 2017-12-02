@@ -40,7 +40,7 @@ var LocalMultiplayerSnakeGame = function() {
         } else if (player == 1) {
             this.direction = "a";
         }
-        
+
 
         this.draw = function() {
             for (var segment of this.snakeArray) {
@@ -56,7 +56,7 @@ var LocalMultiplayerSnakeGame = function() {
                 var tail = this.snakeArray.pop();
                 x = tail.sprite.X;
                 y = tail.sprite.Y;
-               this.snakeArray.push(tail);
+                this.snakeArray.push(tail);
 
                 if (player == 0) {
                     switch (this.direction) {
@@ -74,7 +74,7 @@ var LocalMultiplayerSnakeGame = function() {
                             break;
                     }
                 } else if (player == 1) {
-                    switch(this.direction) {
+                    switch (this.direction) {
                         case "d":
                             x -= (CELL_WIDTH);
                             break;
@@ -90,13 +90,13 @@ var LocalMultiplayerSnakeGame = function() {
                     }
                 }
             } else {
-            	if (player === 0) {
-            		x = canvas.width/2 + 3 * CELL_WIDTH;
-                    y = canvas.height/2;
-            	} else {
-            		x = canvas.width/2 - 3 * CELL_WIDTH;
-                    y = canvas.height/2;
-            	}
+                if (player === 0) {
+                    x = canvas.width / 2 + 3 * CELL_WIDTH;
+                    y = canvas.height / 2;
+                } else {
+                    x = canvas.width / 2 - 3 * CELL_WIDTH;
+                    y = canvas.height / 2;
+                }
             }
 
             this.snakeArray.push(new SnakeSegment(x, y));
@@ -111,8 +111,8 @@ var LocalMultiplayerSnakeGame = function() {
         };
 
         this.move = function() {
-            var tail  = this.snakeArray[this.snakeArray.length - 1];
-            var head  = this.snakeArray[0];
+            var tail = this.snakeArray[this.snakeArray.length - 1];
+            var head = this.snakeArray[0];
             var headX;
             var headY;
 
@@ -127,43 +127,43 @@ var LocalMultiplayerSnakeGame = function() {
             if (player == 0) {
                 switch (this.direction) {
                     case "right":
-                        tail.sprite.X  = (headX + CELL_WIDTH);
+                        tail.sprite.X = (headX + CELL_WIDTH);
                         tail.sprite.Y = headY;
                         break;
                     case "left":
-                        tail.sprite.X  = (headX - CELL_WIDTH);
+                        tail.sprite.X = (headX - CELL_WIDTH);
                         tail.sprite.Y = headY;
                         break;
                     case "up":
-                        tail.sprite.Y  = (headY - CELL_WIDTH);
+                        tail.sprite.Y = (headY - CELL_WIDTH);
                         tail.sprite.X = headX;
                         break;
                     case "down":
-                        tail.sprite.Y  = (headY + CELL_WIDTH);
+                        tail.sprite.Y = (headY + CELL_WIDTH);
                         tail.sprite.X = headX;
                         break;
                 }
             } else if (player == 1) {
                 switch (this.direction) {
                     case "d":
-                        tail.sprite.X  = (headX + CELL_WIDTH);
+                        tail.sprite.X = (headX + CELL_WIDTH);
                         tail.sprite.Y = headY;
                         break;
                     case "a":
-                        tail.sprite.X  = (headX - CELL_WIDTH);
+                        tail.sprite.X = (headX - CELL_WIDTH);
                         tail.sprite.Y = headY;
                         break;
                     case "w":
-                        tail.sprite.Y  = (headY - CELL_WIDTH);
+                        tail.sprite.Y = (headY - CELL_WIDTH);
                         tail.sprite.X = headX;
                         break;
                     case "s":
-                        tail.sprite.Y  = (headY + CELL_WIDTH);
+                        tail.sprite.Y = (headY + CELL_WIDTH);
                         tail.sprite.X = headX;
                         break;
                 }
             }
-            
+
 
             this.snakeArray.pop();
             this.snakeArray.unshift(tail);
@@ -180,20 +180,20 @@ var LocalMultiplayerSnakeGame = function() {
             return false;
         };
         this.checkCollisionWithPlayer = function() {
-        	var other = getGameObject("snake" + ( Math.abs(player - 1) ));
-        	for (var segment of other.snakeArray) {
-        		if (this.getHead().name !== segment.name &&
-                        this.getHead().sprite.X === segment.sprite.X &&
-                        this.getHead().sprite.Y === segment.sprite.Y) {
-                        if (segment.name === other.getHead().name && 
-                        		this.snakeArray.length > other.snakeArray.length ) {
-                        	return false;
-                        } else {
-                        	return true;
-                        }
+            var other = getGameObject("snake" + (Math.abs(player - 1)));
+            for (var segment of other.snakeArray) {
+                if (this.getHead().name !== segment.name &&
+                    this.getHead().sprite.X === segment.sprite.X &&
+                    this.getHead().sprite.Y === segment.sprite.Y) {
+                    if (segment.name === other.getHead().name &&
+                        this.snakeArray.length > other.snakeArray.length) {
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }
-        	}
-        	return false;
+            }
+            return false;
         };
 
         this.getDirection = function() {
@@ -238,9 +238,9 @@ var LocalMultiplayerSnakeGame = function() {
             var filled = true;
             while (filled) {
                 filled = false;
-                var x = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-                var y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-                
+                var x = Math.round(Math.random() * (canvas.width - CELL_WIDTH) / CELL_WIDTH) * CELL_WIDTH;
+                var y = Math.round(Math.random() * (canvas.height - CELL_WIDTH) / CELL_WIDTH) * CELL_WIDTH;
+
                 for (var segment of getGameObject("snake0").snakeArray) {
                     if (x == segment.sprite.X && y == segment.sprite.Y) {
                         filled = true;
@@ -256,7 +256,7 @@ var LocalMultiplayerSnakeGame = function() {
                     filled = true;
                 }
             }
-            
+
             this.sprite.X = x;
             this.sprite.Y = y;
         };
@@ -279,9 +279,9 @@ var LocalMultiplayerSnakeGame = function() {
             var filled = true;
             while (filled) {
                 filled = false;
-                var x = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-                var y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-                
+                var x = Math.round(Math.random() * (canvas.width - CELL_WIDTH) / CELL_WIDTH) * CELL_WIDTH;
+                var y = Math.round(Math.random() * (canvas.height - CELL_WIDTH) / CELL_WIDTH) * CELL_WIDTH;
+
                 for (var segment of getGameObject("snake0").snakeArray) {
                     if (x == segment.sprite.X && y == segment.sprite.Y) {
                         filled = true;
@@ -297,7 +297,7 @@ var LocalMultiplayerSnakeGame = function() {
                     filled = true;
                 }
             }
-            
+
             getGameObject("poison").sprite.X = x;
             getGameObject("poison").sprite.Y = y;
             window.snakePoisonInterval = setTimeout(getGameObject("poison").move, 3000);
@@ -330,20 +330,20 @@ var LocalMultiplayerSnakeGame = function() {
     }
 
     this.update = function() {
-    	if (this.state === "gameover") {
-    		if (this.restartTimer < 30) {
-    			this.restartTimer++;
-    			return;
-    		}
-    		if (!this.restartFlag) {
-                this.uiComponents.addAlert(getContext().canvas.width-350, 75, "Press space to restart!", "bold white");
+        if (this.state === "gameover") {
+            if (this.restartTimer < 30) {
+                this.restartTimer++;
+                return;
+            }
+            if (!this.restartFlag) {
+                this.uiComponents.addAlert(getContext().canvas.width - 350, 75, "Press space to restart!", "bold white");
                 this.restartFlag = true;
-    		}
+            }
             if (isKeyDown("space")) {
-    			this.restart();
-    		}
-    		return;
-    	}
+                this.restart();
+            }
+            return;
+        }
         this.updateSnake(0); // player 1
         this.updateSnake(1); // player 2
     }
@@ -412,7 +412,7 @@ var LocalMultiplayerSnakeGame = function() {
             snake.grow();
             food.move();
             this.score[player] += 50;
-            
+
         }
         if (head.sprite.X === poison.sprite.X && head.sprite.Y == poison.sprite.Y) {
             if (snake.shrink() === -1) {
@@ -427,10 +427,10 @@ var LocalMultiplayerSnakeGame = function() {
             this.gameOver();
             return;
         }
-        
+
         if (snake.checkCollisionWithPlayer()) {
-        	console.log("player" + player + " loses");
-        	this.gameOver();
+            console.log("player" + player + " loses");
+            this.gameOver();
             return;
         }
 
@@ -447,7 +447,7 @@ var LocalMultiplayerSnakeGame = function() {
         // Draws the start instructions
         if (getGameObject("poison").sprite.X < 0) {
             context.font = "30px Verdana";
-            context.fillText("Press a directional key to begin!", context.canvas.width/2 - 100, context.canvas.height/2);
+            context.fillText("Press a directional key to begin!", context.canvas.width / 2 - 100, context.canvas.height / 2);
         }
     }
 
@@ -472,19 +472,19 @@ var LocalMultiplayerSnakeGame = function() {
         var snake2 = getGameObject("snake1");
         var winner;
         if (snake1.snakeArray.length > snake2.snakeArray.length) {
-        	winner = "Player 1 wins!";
+            winner = "Player 1 wins!";
         } else if (snake2.snakeArray.length > snake1.snakeArray.length) {
-        	winner = "Player 2 wins!";
+            winner = "Player 2 wins!";
         } else {
-        	winner = "It's a draw!";
+            winner = "It's a draw!";
         }
-        
+
         this.state = "gameover";
-        this.uiComponents.addAlert(getContext().canvas.width -300, 50, winner, "bold white");
+        this.uiComponents.addAlert(getContext().canvas.width - 300, 50, winner, "bold white");
     }
-    
+
     this.restart = function() {
-    	removeGameObject("food");
+        removeGameObject("food");
         removeGameObject("poison");
         removeGameObject("snake0"); // player 1
         removeGameObject("snake1"); // player 2

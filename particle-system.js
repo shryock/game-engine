@@ -39,7 +39,7 @@ function ParticleSystem(particleName, spriteSrc, baseWidth, baseHeight, minX, ma
         this.prototype = Object.create(GameObject.prototype);
         GameObject.call(this);
 
-        this.sprite = addSprite(x, y, size*baseWidth, size*baseHeight, spriteSrc);
+        this.sprite = addSprite(x, y, size * baseWidth, size * baseHeight, spriteSrc);
         this.name = name + id;
         this.sprite.X = x;
         this.sprite.Y = y;
@@ -58,11 +58,11 @@ function ParticleSystem(particleName, spriteSrc, baseWidth, baseHeight, minX, ma
     }
 
     this.generateParticle = function() {
-        var x = Math.round(Math.random()*(this.maxX - this.minX) + this.minX);
-        var y = Math.round(Math.random()*(this.maxY - this.minY) + this.minY);
-        var dir = Math.round(Math.random()*(this.maxDir - this.minDir) + this.minDir);
-        var size = Math.round(Math.random()*(this.maxSize - this.minSize) + this.minSize);
-        var speed = Math.round(Math.random()*(this.maxSp - this.minSp) + this.minSp);
+        var x = Math.round(Math.random() * (this.maxX - this.minX) + this.minX);
+        var y = Math.round(Math.random() * (this.maxY - this.minY) + this.minY);
+        var dir = Math.round(Math.random() * (this.maxDir - this.minDir) + this.minDir);
+        var size = Math.round(Math.random() * (this.maxSize - this.minSize) + this.minSize);
+        var speed = Math.round(Math.random() * (this.maxSp - this.minSp) + this.minSp);
 
         var particle = new Particle(this.particleName, this.spriteSrc, this.baseWidth, this.baseHeight, this.numberOfParticles++, x, y, dir, size, speed, this.isParticleCollidable);
         this.particles.push(particle);
@@ -70,20 +70,20 @@ function ParticleSystem(particleName, spriteSrc, baseWidth, baseHeight, minX, ma
 
         // Set timer to destroy particle
         if (this.timeout !== undefined) {
-          setTimeout(function() {
+            setTimeout(function() {
                 _this.destroyParticle(particle.name);
             }, this.timeout);
         }
     }
 
     this.destroyParticle = function(particleName) {
-      for (var i = 0; i < this.particles.length; i++) {
-        if (this.particles[i].name === particleName) {
-            this.particles.splice(i, 1);
+        for (var i = 0; i < this.particles.length; i++) {
+            if (this.particles[i].name === particleName) {
+                this.particles.splice(i, 1);
+            }
         }
-      }
 
-      removeGameObject(particleName);
+        removeGameObject(particleName);
     }
 
     this.generateParticlesAtRate = function(rate) {
