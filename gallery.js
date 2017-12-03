@@ -17,7 +17,7 @@ var Gallery = function() {
         if (this.gameHasStarted) {
             clearGame();
         }
-        switch(game) {
+        switch (game) {
             case 0:
                 startGame(new AlchemyGame(), 30, document.getElementById('alchemy-game-canvas'));
                 this.gameHasStarted = true;

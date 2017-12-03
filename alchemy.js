@@ -56,12 +56,12 @@ var AlchemyGame = function() {
         // Dimensions for the element sprites
         var elementWidth = 80;
         var elementHeight = 80;
-        
-        
+
+
         for (var i = 0; i < images.length; i++) {
             addGameObjectWithSprite(colorNames[i], 20 + (elementWidth * i) + 10, 20, elementWidth, elementHeight, images[i]);
         }
-        
+
         // load recipes
         this.recipes.push(new Recipe(getGameObject("red"), getGameObject("yellow"), getGameObject("orange")));
         this.recipes.push(new Recipe(getGameObject("red"), getGameObject("blue"), getGameObject("purple")));
@@ -97,7 +97,7 @@ var AlchemyGame = function() {
         canvas.width = canvas.width;
         context.font = "30px Verdana";
         if (this.newColor != undefined) {
-          context.fillText("Created Color: " + this.newColor, 100, 400);
+            context.fillText("Created Color: " + this.newColor, 100, 400);
         }
         context.beginPath();
         context.lineWidth = "6";
@@ -112,7 +112,7 @@ var AlchemyGame = function() {
             var secondElement;
 
             var objects = getObjectsAtPoint(firstElement.sprite.X + firstElement.sprite.width / 2,
-                                            firstElement.sprite.Y + firstElement.sprite.height / 2);
+                firstElement.sprite.Y + firstElement.sprite.height / 2);
 
             // If there are multiple objects overlapping
             if (objects.length > 1) {
@@ -166,10 +166,10 @@ var AlchemyGame = function() {
         var color;
 
         for (var recipe of this.recipes) {
-            if ((recipe.input1.name === element1.name  &&
-                 recipe.input2.name === element2.name) ||
-                (recipe.input2.name === element1.name  &&
-                 recipe.input1.name === element2.name)) {
+            if ((recipe.input1.name === element1.name &&
+                    recipe.input2.name === element2.name) ||
+                (recipe.input2.name === element1.name &&
+                    recipe.input1.name === element2.name)) {
                 color = recipe.output;
                 break;
             } else {
@@ -182,12 +182,12 @@ var AlchemyGame = function() {
 
     // Function to check if the given GameObject is inside the box
     function isInBox(element) {
-      return (element.sprite.Y < window.innerHeight / 5);
+        return (element.sprite.Y < window.innerHeight / 5);
     }
 
     function canCombine(element1, element2) {
-      var spritesOutOfBox = !isInBox(element1) && !isInBox(element2);
-      var areColliding = checkCollision(element1, element2);
-      return spritesOutOfBox && areColliding;
+        var spritesOutOfBox = !isInBox(element1) && !isInBox(element2);
+        var areColliding = checkCollision(element1, element2);
+        return spritesOutOfBox && areColliding;
     }
 }

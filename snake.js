@@ -63,8 +63,8 @@ var SnakeGame = function() {
                         break;
                 }
             } else {
-                x = canvas.width/2;
-                y = canvas.height/2;
+                x = canvas.width / 2;
+                y = canvas.height / 2;
             }
 
             this.snakeArray.push(new SnakeSegment(x, y));
@@ -79,8 +79,8 @@ var SnakeGame = function() {
         };
 
         this.move = function() {
-            var tail  = this.snakeArray[this.snakeArray.length - 1];
-            var head  = this.snakeArray[0];
+            var tail = this.snakeArray[this.snakeArray.length - 1];
+            var head = this.snakeArray[0];
             var headX;
             var headY;
 
@@ -94,19 +94,19 @@ var SnakeGame = function() {
 
             switch (this.direction) {
                 case "right":
-                    tail.sprite.X  = (headX + CELL_WIDTH);
+                    tail.sprite.X = (headX + CELL_WIDTH);
                     tail.sprite.Y = headY;
                     break;
                 case "left":
-                    tail.sprite.X  = (headX - CELL_WIDTH);
+                    tail.sprite.X = (headX - CELL_WIDTH);
                     tail.sprite.Y = headY;
                     break;
                 case "up":
-                    tail.sprite.Y  = (headY - CELL_WIDTH);
+                    tail.sprite.Y = (headY - CELL_WIDTH);
                     tail.sprite.X = headX;
                     break;
                 case "down":
-                    tail.sprite.Y  = (headY + CELL_WIDTH);
+                    tail.sprite.Y = (headY + CELL_WIDTH);
                     tail.sprite.X = headX;
                     break;
             }
@@ -166,22 +166,22 @@ var SnakeGame = function() {
 
         this.move = function() {
             var filled = true;
-        	while (filled) {
-	            filled = false;
-        		var x = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-	            var y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-	            
-	            for (var segment of getGameObject("snake").snakeArray) {
-	                if (x == segment.sprite.X && y == segment.sprite.Y) {
-	                    filled = true;
-	                }
-	            }
-	            var poison = getGameObject("poison");
-	            if (poison && x == poison.sprite.X && y == poison.sprite.Y) {
-	            	filled = true;
-	            }
-        	}
-        	
+            while (filled) {
+                filled = false;
+                var x = Math.round(Math.random() * (canvas.width - CELL_WIDTH) / CELL_WIDTH) * CELL_WIDTH;
+                var y = Math.round(Math.random() * (canvas.height - CELL_WIDTH) / CELL_WIDTH) * CELL_WIDTH;
+
+                for (var segment of getGameObject("snake").snakeArray) {
+                    if (x == segment.sprite.X && y == segment.sprite.Y) {
+                        filled = true;
+                    }
+                }
+                var poison = getGameObject("poison");
+                if (poison && x == poison.sprite.X && y == poison.sprite.Y) {
+                    filled = true;
+                }
+            }
+
             this.sprite.X = x;
             this.sprite.Y = y;
         };
@@ -202,24 +202,24 @@ var SnakeGame = function() {
         this.move = function() {
             clearInterval(window.snakePoisonInterval);
             var filled = true;
-        	while (filled) {
-	            filled = false;
-        		var x = Math.round(Math.random()*(canvas.width-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-	            var y = Math.round(Math.random()*(canvas.height-CELL_WIDTH)/CELL_WIDTH)*CELL_WIDTH;
-	            
-	            for (var segment of getGameObject("snake").snakeArray) {
-	                if (x == segment.sprite.X && y == segment.sprite.Y) {
-	                    filled = true;
-	                }
-	            }
-	            var food = getGameObject("food");
-	            if (food && x == food.sprite.X && y == food.sprite.Y) {
-	            	filled = true;
-	            }
-        	}
-        	
-        	getGameObject("poison").sprite.X = x;
-        	getGameObject("poison").sprite.Y = y;
+            while (filled) {
+                filled = false;
+                var x = Math.round(Math.random() * (canvas.width - CELL_WIDTH) / CELL_WIDTH) * CELL_WIDTH;
+                var y = Math.round(Math.random() * (canvas.height - CELL_WIDTH) / CELL_WIDTH) * CELL_WIDTH;
+
+                for (var segment of getGameObject("snake").snakeArray) {
+                    if (x == segment.sprite.X && y == segment.sprite.Y) {
+                        filled = true;
+                    }
+                }
+                var food = getGameObject("food");
+                if (food && x == food.sprite.X && y == food.sprite.Y) {
+                    filled = true;
+                }
+            }
+
+            getGameObject("poison").sprite.X = x;
+            getGameObject("poison").sprite.Y = y;
             window.snakePoisonInterval = setTimeout(getGameObject("poison").move, 3000);
         };
 
@@ -248,19 +248,19 @@ var SnakeGame = function() {
 
         if (isKeyDown("right") && !isKeyDown("left") && !isKeyDown("up") && !isKeyDown("down")) {
             if (previousDirection !== "left") {
-               snake.setDirection("right");
+                snake.setDirection("right");
             }
         } else if (!isKeyDown("right") && isKeyDown("left") && !isKeyDown("up") && !isKeyDown("down")) {
             if (previousDirection !== "right") {
-               snake.setDirection("left");
+                snake.setDirection("left");
             }
         } else if (!isKeyDown("right") && !isKeyDown("left") && isKeyDown("up") && !isKeyDown("down")) {
             if (previousDirection !== "down") {
-               snake.setDirection("up");
+                snake.setDirection("up");
             }
         } else if (!isKeyDown("right") && !isKeyDown("left") && !isKeyDown("up") && isKeyDown("down")) {
             if (previousDirection !== "up") {
-               snake.setDirection("down");
+                snake.setDirection("down");
             }
         } else {
             snake.setDirection(previousDirection);
@@ -296,7 +296,7 @@ var SnakeGame = function() {
             this.gameOver();
             return;
         }
-        
+
         snake.move();
 
         this.uiComponents.setScore(SCORE_STRING_ID, this.score);
@@ -306,7 +306,7 @@ var SnakeGame = function() {
         // Draws the start instructions
         if (getGameObject("poison").sprite.X < 0) {
             context.font = "30px Verdana";
-            context.fillText("Press a directional key to begin!", context.canvas.width/2 - 100, context.canvas.height/2);
+            context.fillText("Press a directional key to begin!", context.canvas.width / 2 - 100, context.canvas.height / 2);
         }
     }
 
@@ -319,7 +319,7 @@ var SnakeGame = function() {
     }
 
     this.gameOver = function() {
-    	if (this.score > this.highScore) {
+        if (this.score > this.highScore) {
             this.highScore = this.score;
             this.uiComponents.setHighScore(HIGHSCORE_STRING_ID, this.highScore);
         }
@@ -327,6 +327,6 @@ var SnakeGame = function() {
         removeGameObject("food");
         removeGameObject("poison");
         removeGameObject("snake");
-	    this.createGame();
+        this.createGame();
     }
 }

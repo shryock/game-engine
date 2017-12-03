@@ -23,7 +23,7 @@ function CollisionSystem(width, height) {
 
     // Initilize the top-level QuadTree for the CollisionSystem
     this.quadTree = new QuadTree(new AxisAlignedBoundingBox(
-        new Point(width/2, height/2), new Point(width/2, height/2)));
+        new Point(width / 2, height / 2), new Point(width / 2, height / 2)));
 
     // Simple definition of a Point, used for defining an AxisAlignedBoundingBox
     function Point(x, y) {
@@ -48,15 +48,15 @@ function CollisionSystem(width, height) {
         // Returns true if the passed in point is contained with this AABB
         this.containsPoint = function(point) {
             return (point.x >= this.center.x - this.half.x &&
-                    point.y >= this.center.y - this.half.y &&
-                    point.x < this.center.x + this.half.x &&
-                    point.y < this.center.y + this.half.y);
+                point.y >= this.center.y - this.half.y &&
+                point.x < this.center.x + this.half.x &&
+                point.y < this.center.y + this.half.y);
         }
 
         // Returns true if the passed in AABB intersects this AABB
         this.intersects = function(aabb) {
             return (Math.abs(this.center.x - aabb.center.x) * 2 < (this.half.x * 2 + aabb.half.x * 2)) &&
-                   (Math.abs(this.center.y - aabb.center.y) * 2 < (this.half.y * 2 + aabb.half.y * 2));
+                (Math.abs(this.center.y - aabb.center.y) * 2 < (this.half.y * 2 + aabb.half.y * 2));
         }
     }
 
@@ -99,10 +99,18 @@ function CollisionSystem(width, height) {
                 }
 
                 // Add this point whereever it can
-                if (this.nw.insert(point)) { return true; }
-                if (this.ne.insert(point)) { return true; }
-                if (this.sw.insert(point)) { return true; }
-                if (this.se.insert(point)) { return true; }
+                if (this.nw.insert(point)) {
+                    return true;
+                }
+                if (this.ne.insert(point)) {
+                    return true;
+                }
+                if (this.sw.insert(point)) {
+                    return true;
+                }
+                if (this.se.insert(point)) {
+                    return true;
+                }
             }
 
             return false;
@@ -189,7 +197,7 @@ function CollisionSystem(width, height) {
 
     // Register GameObject with the CollisionSystem by inserting it into the QuadTree.
     this.registerObject = function(gameObject) {
-        this.quadTree.insert(new Point(gameObject.sprite.X + gameObject.sprite.width/2, gameObject.sprite.Y + gameObject.sprite.height/2));
+        this.quadTree.insert(new Point(gameObject.sprite.X + gameObject.sprite.width / 2, gameObject.sprite.Y + gameObject.sprite.height / 2));
     }
 
     // Clears the CollisionSystem's QuadTree
@@ -203,9 +211,9 @@ function CollisionSystem(width, height) {
      */
     this.checkCollision = function(object1, object2) {
         var pointsInRange = [];
-        var aabb = new AxisAlignedBoundingBox(new Point(object1.sprite.X+object1.sprite.width/2, object1.sprite.Y+object1.sprite.height/2),
-                                              new Point(object1.sprite.width/2, object1.sprite.height/2));
-        var center2 = new Point(object2.sprite.X+object2.sprite.width/2, object2.sprite.Y+object2.sprite.height/2);
+        var aabb = new AxisAlignedBoundingBox(new Point(object1.sprite.X + object1.sprite.width / 2, object1.sprite.Y + object1.sprite.height / 2),
+            new Point(object1.sprite.width / 2, object1.sprite.height / 2));
+        var center2 = new Point(object2.sprite.X + object2.sprite.width / 2, object2.sprite.Y + object2.sprite.height / 2);
 
         this.quadTree.queryRange(aabb, pointsInRange);
 
